@@ -1,0 +1,34 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Modprobe and Import ZFS pools if defined
+###############################################################################
+# ZFS module is not loaded by default. It will load automatically on reboots
+# when pools are imported. Manually trigger modprobe if there are pools defined
+# and import them.
+#
+# Secure boot requires signed modules; if the MOK is not loaded and secure boot
+# is enabled, the module will fail to load with the message:
+#
+#   /sbin/modprobe zfs
+#   > modprobe: ERROR: could not insert 'zfs': Key was rejected by service
+#
+# This requires installing the MOK (machine owners key) before applying this
+# role. See r_pufky.srv.secure_boot.
+#
+# Reference:
+# * https://wiki.debian.org/SecureBoot#DKMS_and_secure_boot
+# * https://forum.proxmox.com/threads/zfs-unable-to-load-on-fresh-install.36959/
+# * https://r-pufky.github.io/docs/virtualization/hypervisors/pve/index.html#mount-external-zfs-pool
+
+- name: 'Modprobe | kernel module'
+  community.general.modprobe:
+    name: 'zfs'
+    state: 'present'
+
+- name: 'Modprobe | importing ZFS pools (if needed)'
+  when: zfs_pools | length > 0
+  ansible.builtin.include_tasks: 'import_zfs_pool.yml'
+  loop: '{{ zfs_pools }}'
+  loop_control:
+    loop_var: pool

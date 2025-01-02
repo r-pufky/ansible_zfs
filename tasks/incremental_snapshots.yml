@@ -1,0 +1,64 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Setup ZFS incremental snapshots
+###############################################################################
+# Only given permission to datasets (NOT root pool) will allow snapshot
+# deletion without deleting pool.
+#
+# Reference:
+# * https://zfs-discuss.opensolaris.narkive.com/GuN3T2n9/zfs-allow-destroy-and-rmdir-to-remove-snapshot
+
+- name: 'Incremental snapshots | set zfs_snapshot permission (mount,destroy) for snapshots'
+  ansible.builtin.command: '/usr/sbin/zfs allow -d {{ zfs_user }} mount,destroy {{ item }}'
+  changed_when: false
+  loop: '{{ zfs_snapshot_datasets }}'
+
+- name: 'Incremental snapshots | set incremental snapshot script'
+  ansible.builtin.template:
+    src: 'zfs_incremental_snapshot.j2'
+    dest: '/etc/zfs_snapshot/zfs_incremental_snapshot'
+    owner: '{{ zfs_user }}'
+    group: '{{ zfs_user }}'
+    mode: '0755'
+    force: true
+
+- name: 'Incremental snapshots | enable scheduled jobs'
+  when: zfs_snapshot_enable
+  ansible.builtin.include_role:
+    name: 'r_pufky.srv.systemd'
+  vars:
+    systemd_services:
+      - name: 'zfs_snapshot'
+        state: 'present'
+        unit:
+          description: 'run ZFS snapshots and upload datasets'
+          requires: ['zfs_snapshot.timer']
+        service:
+          type: 'simple'
+          exec_start: ['/etc/zfs_snapshot/zfs_incremental_snapshot']
+        exec:
+          user: '{{ zfs_user }}'
+          group: '{{ zfs_group }}'
+    systemd_timers:
+      - name: 'zfs_snapshot'
+        state: 'present'
+        unit:
+          description: 'trigger timer for ZFS snapshots'
+        timer:
+          unit: 'zfs_snapshot.service'
+          on_calendar: ['{{ zfs_snapshot_schedule }}']
+        install:
+          wanted_by: ['timers.target']
+
+- name: 'Incremental snapshots | disable scheduled jobs'
+  when: not zfs_snapshot_enable
+  ansible.builtin.include_role:
+    name: 'r_pufky.srv.systemd'
+  vars:
+    systemd_services:
+      - name: 'zfs_snapshot'
+        state: 'absent'
+    systemd_timers:
+      - name: 'zfs_snapshot'
+        state: 'absent'

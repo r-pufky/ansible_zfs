@@ -1,0 +1,39 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Import ZFS pools if defined
+###############################################################################
+#
+# Args:
+#   pool: dict - ZFS pool settings to import (item from zfs_pools).
+
+- name: 'Import ZFS pool | query pool state'
+  ansible.builtin.shell: 'set -o pipefail && /usr/sbin/zpool list -H | grep "{{ pool.name }}"'
+  args:
+    executable: '/bin/bash'
+  register: _zfs_query
+  changed_when: false
+  failed_when: _zfs_query.rc > 1
+
+- name: 'Import ZFS pool | import {{ pool.name }}'
+  when: _zfs_query.rc == 1
+  ansible.builtin.command: '/usr/sbin/zpool import "{{ pool.name }}" {{ "-f" if zfs_pools_force else "" }}'
+  register: _zfs_import
+  changed_when: _zfs_import.rc == 0
+
+- name: 'Import ZFS pool | enable scheduled scrubbing'
+  when: pool.scrub | lower != ''
+  ansible.builtin.systemd_service:
+    name: 'zfs-scrub-{{ pool.scrub | lower }}@{{ pool.name }}.timer'
+    enabled: true
+    state: 'started'
+
+- name: 'Import ZFS pool | disable scrubbing'
+  when: pool.scrub | lower == ''
+  ansible.builtin.systemd_service:
+    name: 'zfs-scrub-{{ item }}@{{ pool.name }}.timer'
+    enabled: false
+    state: 'stopped'
+  loop:
+    - 'monthly'
+    - 'weekly'

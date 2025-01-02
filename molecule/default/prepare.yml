@@ -1,0 +1,28 @@
+---
+# yamllint disable rule:line-length
+- name: 'Default | prepare'
+  hosts: 'all'
+  gather_facts: true  # ansible_kernel
+  become: true
+  tasks:
+    # Apply the role in default state to support ZFS operations
+    - name: 'Default | prepare | apply r_pufky.srv.zfs'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.zfs'
+
+    # Create testing pool for convergence testing
+    - name: 'Default | prepare | create file block devices'
+      ansible.builtin.command: 'dd if=/dev/zero of=/tmp/fblk bs=1M count=128'
+      changed_when: false
+
+    - name: 'Default | prepare | setup file block loopback device'
+      ansible.builtin.command: 'losetup /dev/loop0 /tmp/fblk'
+      changed_when: false
+
+    - name: 'Default | prepare | create zpool test'
+      ansible.builtin.command: 'zpool create test /dev/loop0'
+      changed_when: false
+
+    - name: 'Default | prepare | export zpool test'
+      ansible.builtin.command: 'zpool export test'
+      changed_when: false

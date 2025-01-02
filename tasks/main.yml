@@ -1,0 +1,22 @@
+---
+- name: 'Install packages'
+  ansible.builtin.include_role:
+    name: 'r_pufky.srv.apt'
+  vars:
+    apt_packages:
+      - '{{ zfs_role_packages }}'
+    apt_package_update_cache: true
+
+- name: 'Manage users'
+  when: zfs_create_user
+  ansible.builtin.include_role:
+    name: 'r_pufky.srv.users'
+    tasks_from: 'role_account_add.yml'
+  vars:
+    users_role_group: '{{ zfs_role_default_group }}'
+    users_role_user: '{{ zfs_role_default_user }}'
+
+- name: 'Modprobe'
+  ansible.builtin.import_tasks: 'modprobe.yml'
+- name: 'Incremental snapshots'
+  ansible.builtin.import_tasks: 'incremental_snapshots.yml'
