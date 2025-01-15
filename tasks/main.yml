@@ -13,8 +13,8 @@
     name: 'r_pufky.srv.users'
     tasks_from: 'role_account_add.yml'
   vars:
-    users_role_group: '{{ zfs_role_default_group }}'
-    users_role_user: '{{ zfs_role_default_user }}'
+    users_role_group: '{{ zfs_role_group }}'
+    users_role_user: '{{ zfs_role_user }}'
 
 - name: 'Modprobe'
   ansible.builtin.import_tasks: 'modprobe.yml'

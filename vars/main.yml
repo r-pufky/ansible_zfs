@@ -25,11 +25,11 @@ zfs_role_packages:
   - 'linux-headers-amd64'
   - 'linux-image-amd64'
 
-zfs_role_default_group:
+zfs_role_group:
   name: 'zfs_snapshot'
   gid: 901
 
-zfs_role_default_user:
+zfs_role_user:
   name: 'zfs_snapshot'
   group: 'zfs_snapshot'
   groups:
