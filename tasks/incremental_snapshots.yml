@@ -31,7 +31,7 @@
     systemd_services:
       - name: 'zfs_snapshot'
         state: 'present'
-        override: false
+        drop_in: false
         unit:
           description: 'run ZFS snapshots and upload datasets'
           requires: ['zfs_snapshot.timer']
@@ -44,7 +44,7 @@
     systemd_timers:
       - name: 'zfs_snapshot'
         state: 'present'
-        override: false
+        drop_in: false
         unit:
           description: 'trigger timer for ZFS snapshots'
         timer:
@@ -61,8 +61,8 @@
     systemd_services:
       - name: 'zfs_snapshot'
         state: 'absent'
-        override: false
+        drop_in: false
     systemd_timers:
       - name: 'zfs_snapshot'
         state: 'absent'
-        override: false
+        drop_in: false
