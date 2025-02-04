@@ -70,8 +70,8 @@ zfs_group: 'zfs_snapshot'
 #
 # Applied via r_pufky.srv.users, see vars/main.yml for default user attributes.
 #
-# Default: False.
-zfs_create_user: false
+# Default: True.
+zfs_create_user: true
 
 ###############################################################################
 # ZFS Incremental Snapshots Configuration
