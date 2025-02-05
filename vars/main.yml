@@ -7,13 +7,15 @@
 zfs_role_validate_date: '2024-06-14'
 zfs_role_validate_release: 'bookworm'
 
-# Debian packages for ZFS support.
-#
+###############################################################################
+# APT Packages
+###############################################################################
 # Secure boot support is automatic once the DKMS keys are loaded. See
 # r_pufky.srv.secure_boot.
 #
 # Reference:
 # * https://openzfs.github.io/openzfs-docs/Getting%20Started/Debian/index.html
+
 zfs_role_packages:
   - 'zfsutils-linux'
   - 'zfs-dkms'
@@ -24,6 +26,10 @@ zfs_role_packages:
   # future kernel build files
   - 'linux-headers-amd64'
   - 'linux-image-amd64'
+
+###############################################################################
+# Default ZFS User/Group
+###############################################################################
 
 zfs_role_group:
   name: 'zfs_snapshot'
