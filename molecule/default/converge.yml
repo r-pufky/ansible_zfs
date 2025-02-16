@@ -8,4 +8,4 @@
       ansible.builtin.include_role:
         name: 'r_pufky.srv.zfs'
       vars:
-        zfs_pools: [{name: 'test', scrub: 'monthly'}]
+        zfs_pools: [{name: 'test', scrub: 'monthly', datasets: []}]

@@ -1,4 +1,7 @@
 ---
+- name: 'Prep'
+  ansible.builtin.import_tasks: 'prep.yml'
+
 - name: 'Install packages'
   ansible.builtin.include_role:
     name: 'r_pufky.srv.apt'
@@ -16,8 +19,8 @@
     users_role_group: '{{ zfs_role_group }}'
     users_role_user: '{{ zfs_role_user }}'
 
-- name: 'Modprobe'
-  ansible.builtin.import_tasks: 'modprobe.yml'
+- name: 'Import'
+  ansible.builtin.import_tasks: 'import.yml'
 - name: 'Incremental snapshots'
   ansible.builtin.import_tasks: 'incremental_snapshots.yml'
 

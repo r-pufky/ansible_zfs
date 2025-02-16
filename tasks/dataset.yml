@@ -1,0 +1,16 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Set ZFS pool dataset options.
+###############################################################################
+#
+# Args:
+#   container: str - ZFS pool name from zfs_pools.
+#   set: dict - ZFS dataset options from zfs_pools.datasets.
+
+- name: 'Dataset | set properties {{ container }}/{{ set.name }}'  # noqa name[template] use full ZFS dataset name.
+  ansible.builtin.command: '/usr/sbin/zfs set {{ item.option }}="{{ item.value }}" "{{ container }}/{{ set.name }}"'
+  register: _zfs_set
+  changed_when: _zfs_set.rc == 0
+  failed_when: _zfs_set.rc > 0
+  loop: '{{ set.properties }}'

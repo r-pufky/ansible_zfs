@@ -23,14 +23,9 @@ provisioner:
     group_vars:
       all:
         zfs_create_user: true
-        zfs_snapshot_enable: true
-        zfs_snapshot_remote_pool: 'test_pool'
-        zfs_snapshot_remote_server: 'example.com'
-        zfs_snapshot_remote_ssh_options:
-          - '-i /root/backup/backup.key'
         zfs_pools_restart_share_enable: true
 platforms:
-  - name: 'zfs-debian-12-vm-default'
+  - name: 'zfs-debian-12-vm-dataset'
     box: 'debian/bookworm64'
     memory: 4096
     cpus: 2
@@ -53,7 +48,7 @@ scenario:
     - 'create'
     - 'prepare'
     - 'converge'
-    # - 'idempotence'  # services/timers toggled in prepare.
+    # - 'idempotence'  # dataset options are always executed.
     # - 'side_effect'
     - 'verify'
     # - 'cleanup'

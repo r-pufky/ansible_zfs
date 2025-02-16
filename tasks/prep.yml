@@ -1,0 +1,27 @@
+---
+###############################################################################
+# Prep ZFS
+###############################################################################
+# Sanity check ZFS pool settings before applying them.
+
+- name: 'Prep | assert pool scrub requirements'
+  ansible.builtin.assert:
+    that:
+      - item.scrub is search("") or
+        item.scrub is search("weekly") or
+        item.scrub is search("monthly")
+    fail_msg: |
+      zfs_pools must always be fully defined.
+
+      {{ item.name }}.scrub is missing or incorrect.
+  loop: '{{ zfs_pools }}'
+
+- name: 'Prep | assert pool dataset requirements'
+  ansible.builtin.assert:
+    that:
+      - '"datasets" in item'
+    fail_msg: |
+      zfs_pools must always be fully defined.
+
+      {{ item.name }}.datasets is missing or incorrect.
+  loop: '{{ zfs_pools }}'

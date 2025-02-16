@@ -37,3 +37,12 @@
   loop:
     - 'monthly'
     - 'weekly'
+
+- name: 'Import ZFS pool | set dataset options'
+  when: pool.datasets | length > 0
+  ansible.builtin.include_tasks: 'dataset.yml'
+  vars:
+    container: '{{ pool.name }}'
+  loop: '{{ pool.datasets }}'
+  loop_control:
+    loop_var: set

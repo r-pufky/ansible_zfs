@@ -21,12 +21,12 @@
 # * https://forum.proxmox.com/threads/zfs-unable-to-load-on-fresh-install.36959/
 # * https://r-pufky.github.io/docs/virtualization/hypervisors/pve/index.html#mount-external-zfs-pool
 
-- name: 'Modprobe | kernel module'
+- name: 'Import | modprobe kernel module'
   community.general.modprobe:
     name: 'zfs'
     state: 'present'
 
-- name: 'Modprobe | importing ZFS pools (if needed)'
+- name: 'Import | importing ZFS pools (if needed)'
   when: zfs_pools | length > 0
   ansible.builtin.include_tasks: 'import_zfs_pool.yml'
   loop: '{{ zfs_pools }}'

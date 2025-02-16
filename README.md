@@ -26,6 +26,9 @@ recommended.
 Manage a ZFS pool, enabling monthly scrubs, and weekly dataset snapshots with
 automatic backup of those snapshots to a remote server via `zincrsend` over
 `SSH`.
+
+All options must be explicitly set.
+
 ``` yaml
 - name: 'Manage ZFS pools'
   ansible.builtin.include_role:
@@ -34,6 +37,23 @@ automatic backup of those snapshots to a remote server via `zincrsend` over
     zfs_pools:
       - name: 'tank'
         scrub: 'monthly'
+        datasets:
+          - name: 'documents'
+            properties:
+              - option: 'atime'
+                value: 'off'
+              - option: 'xattr'
+                value: 'sa'
+              - option: 'dnodesize'
+                value: 'auto'
+              - option: 'sharenfs'
+                value: 'rw=10.10.10.0/24,sec=sys,mountpoint'
+          - name: 'backup'
+            properties:
+              - option: 'atime'
+                value: 'off'
+              - option: 'compression'
+                value: 'lz4'
     zfs_snapshot_enable: true
     zfs_snapshot_schedule: 'weekly'
     zfs_snapshot_retention: 3
@@ -42,9 +62,9 @@ automatic backup of those snapshots to a remote server via `zincrsend` over
       - 'tank/home'
       - 'tank/backup'
       - 'tank/software'
-    zfs_remote_pool: 'backup_tank'
-    zfs_remote_server: 'example.com'
-    zfs_remote_ssh_options:
+    zfs_snapshot_remote_pool: 'backup_tank'
+    zfs_snapshot_remote_server: 'example.com'
+    zfs_snapshot_remote_ssh_options:
       - '-i /root/backup/backup.key'
 ```
 

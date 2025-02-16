@@ -1,53 +1,5 @@
 ---
 ###############################################################################
-# ZFS Pool and Snapshot Management
-###############################################################################
-# ZFS kernel module will be automatically loaded and the specified pools
-# mounted.
-#
-# Secure boot requires signed modules; if the MOK is not loaded and secure boot
-# is enabled, the module will fail to load with the message:
-#
-#   /sbin/modprobe zfs
-#   > modprobe: ERROR: could not insert 'zfs': Key was rejected by service
-#
-# This requires installing the MOK (machine owners key) before applying this
-# role. See r_pufky.srv.secure_boot.
-
-# List of dict ZFS pools to manage.
-#
-# zfs_pools:
-#     list of dict - ZFS pool settings.
-#   name: str - ZFS pool name
-#   scrub: str - ZFS scrubbing schedule; uses built-in systemd ZFS scrub timers
-#       Values:
-#         monthly: scrub monthly
-#         weekly: scrub weekly
-#         '': disabled
-#
-# zfs_pools:
-#   - name: 'tank'
-#     scrub: 'monthly'
-#   - name: 'tank_no_scrubbing'
-#     scrub: ''
-#
-# Default: [].
-zfs_pools: []
-
-# Force import pools?
-#
-# Pools imported without being exported first will block standard imports to
-# protect potential data corruption.
-#
-# Default: False.
-zfs_pools_force: false
-
-# Export NFS/SMB shares on completion?
-#
-# Default: False.
-zfs_pools_restart_share_enable: false
-
-###############################################################################
 # ZFS Snapshot User
 ###############################################################################
 # User for running snapshot backups (local). User will be given mount, destroy
@@ -156,19 +108,19 @@ zfs_snapshot_send_opts:
 #
 # Reference:
 # * https://openzfs.github.io/openzfs-docs/man/master/8/zfs-allow.8.html
-zfs_remote_user: '{{ zfs_user }}'
+zfs_snapshot_remote_user: '{{ zfs_user }}'
 
 # Remote ZFS pool to sync snapshots to. Default: ''.
-zfs_remote_pool: ''
+zfs_snapshot_remote_pool: ''
 
 # Server address. Default: ''.
-zfs_remote_server: ''
+zfs_snapshot_remote_server: ''
 
 # Server Port. Default: 22.
-zfs_remote_port: 22
+zfs_snapshot_remote_port: 22
 
 # Prefix remote commands. Default: 'sudo'.
-zfs_remote_command_prefix: 'sudo'
+zfs_snapshot_remote_command_prefix: 'sudo'
 
 # Addition SSH options. Default: [].
-zfs_remote_ssh_options: []
+zfs_snapshot_remote_ssh_options: []

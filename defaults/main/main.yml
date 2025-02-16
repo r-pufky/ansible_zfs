@@ -1,0 +1,82 @@
+---
+###############################################################################
+# ZFS Pool and Snapshot Management
+###############################################################################
+# ZFS kernel module will be automatically loaded and the specified pools
+# mounted.
+#
+# Secure boot requires signed modules; if the MOK is not loaded and secure boot
+# is enabled, the module will fail to load with the message:
+#
+#   /sbin/modprobe zfs
+#   > modprobe: ERROR: could not insert 'zfs': Key was rejected by service
+#
+# This requires installing the MOK (machine owners key) before applying this
+# role. See r_pufky.srv.secure_boot.
+
+# List of dict ZFS pools to manage.
+#
+# Currently this does NOT create new datasets or pools, just manages existing
+# pools.
+#
+# Decision: require all options explicitly stated - no default values are used
+#     here to be explicit about ZFS options used to prevent data loss.
+#
+# zfs_pools:
+#     list of dict - ZFS pool settings.
+#   name: str - ZFS pool name
+#   scrub: str - ZFS scrubbing schedule; uses built-in systemd ZFS scrub timers
+#       Values:
+#         monthly: scrub monthly.
+#         weekly: scrub weekly.
+#         '': disabled.
+#   datasets: list of dict - dataset configuration for pool.
+#         Leave empty list to not manage any datasets.
+#     - name: str - dataset name.
+#       properties: list of dict - properties to enforce for dataset.
+#         - option: str - ZFS dataset option.
+#           value: str - ZFS dataset option value.
+#
+# zfs_pools:
+#   - name: 'tank'
+#     scrub: 'monthly'
+#     datasets:
+#       - name: 'media'
+#         properties:
+#           - option: 'atime'
+#             value: 'off'
+#           - option: 'xattr'
+#             value: 'sa'
+#           - option: 'dnodesize'
+#             value: 'auto'
+#           - option: 'sharenfs'
+#             value: 'rw=10.10.10.0/24,sec=sys,mountpoint'
+#       - name: 'archive'
+#         properties:
+#           - option: 'atime'
+#             value: 'off'
+#           - option: 'compression'
+#             value: 'lz4'
+#   - name: 'tank_no_scrubbing'
+#     scrub: ''
+#     dataset: []
+#
+# Default: [].
+#
+# Reference:
+# * https://openzfs.github.io/openzfs-docs
+# * https://manpages.debian.org/bookworm/zfsutils-linux/zfsprops.7.en.html
+zfs_pools: []
+
+# Force import pools?
+#
+# Pools imported without being exported first will block standard imports to
+# protect potential data corruption.
+#
+# Default: False.
+zfs_pools_force: false
+
+# Export NFS/SMB shares on completion?
+#
+# Default: False.
+zfs_pools_restart_share_enable: false

@@ -1,0 +1,24 @@
+---
+- name: 'Dataset | converge'
+  hosts: 'all'
+  gather_facts: true  # ansible_kernel
+  become: true
+  tasks:
+    - name: 'Dataset | converge | apply r_pufky.srv.zfs'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.zfs'
+      vars:
+        zfs_pools:
+          - name: 'test'
+            scrub: 'monthly'
+            datasets:
+              - name: 'data'
+                properties:
+                  - option: 'atime'
+                    value: 'off'
+                  - option: 'xattr'
+                    value: 'sa'
+                  - option: 'dnodesize'
+                    value: 'auto'
+                  - option: 'sharenfs'
+                    value: 'rw=10.10.10.0/24,sec=sys,mountpoint'

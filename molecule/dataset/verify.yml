@@ -1,0 +1,62 @@
+---
+# yamllint disable rule:line-length
+- name: 'Dataset | verify'
+  hosts: 'all'
+  gather_facts: true  # ansible_facts.mounts
+  become: true
+  tasks:
+    - name: 'Dataset | verify | query ZFS pool test/data atime'
+      ansible.builtin.command: 'zfs get -H -o value atime test/data'
+      register: _test_zfs_pool_atime
+      changed_when: false
+      failed_when: false
+
+    - name: 'Dataset | verify | assert ZFS pool test/data atime'
+      ansible.builtin.assert:
+        that:
+          - _test_zfs_pool_atime.stdout == 'off'
+        fail_msg: >
+          test/data property should be atime=off.
+          (atime={{ _test_zfs_pool_atime.stdout }}).
+
+    - name: 'Dataset | verify | query ZFS pool test/data xattr'
+      ansible.builtin.command: 'zfs get -H -o value xattr test/data'
+      register: _test_zfs_pool_xattr
+      changed_when: false
+      failed_when: false
+
+    - name: 'Dataset | verify | assert ZFS pool test/data xattr'
+      ansible.builtin.assert:
+        that:
+          - _test_zfs_pool_xattr.stdout == 'sa'
+        fail_msg: >
+          test/data property should be xattr=sa.
+          (xattr={{ _test_zfs_pool_xattr.stdout }}).
+
+    - name: 'Dataset | verify | query ZFS pool test/data dnodesize'
+      ansible.builtin.command: 'zfs get -H -o value dnodesize test/data'
+      register: _test_zfs_pool_dnodesize
+      changed_when: false
+      failed_when: false
+
+    - name: 'Dataset | verify | assert ZFS pool test/data dnodesize'
+      ansible.builtin.assert:
+        that:
+          - _test_zfs_pool_dnodesize.stdout == 'auto'
+        fail_msg: >
+          test/data property should be dnodesize=auto.
+          (dnodesize={{ _test_zfs_pool_dnodesize.stdout }}).
+
+    - name: 'Dataset | verify | query ZFS pool test/data sharenfs'
+      ansible.builtin.command: 'zfs get -H -o value sharenfs test/data'
+      register: _test_zfs_pool_sharenfs
+      changed_when: false
+      failed_when: false
+
+    - name: 'Dataset | verify | assert ZFS pool test/data sharenfs'
+      ansible.builtin.assert:
+        that:
+          - _test_zfs_pool_sharenfs.stdout == 'rw=10.10.10.0/24,sec=sys,mountpoint'
+        fail_msg: >
+          test/data property should be sharenfs=rw=10.10.10.0/24,sec=sys,mountpoint.
+          (sharenfs={{ _test_zfs_pool_sharenfs.stdout }}).

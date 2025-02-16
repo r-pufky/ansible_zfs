@@ -23,12 +23,12 @@ datasets=(
 )
 
 # Remote server connection settings.
-remote_server='{{ zfs_remote_server }}'
-remote_user='{{ zfs_remote_user }}'
-remote_port='{{ zfs_remote_port }}'
-remote_pool='{{ zfs_remote_pool }}'
-remote_command_prefix='{{ zfs_remote_command_prefix }}'
-remote_ssh_opts=({{ zfs_remote_ssh_options | join(" ") }})
+remote_server='{{ zfs_snapshot_remote_server }}'
+remote_user='{{ zfs_snapshot_remote_user }}'
+remote_port='{{ zfs_snapshot_remote_port }}'
+remote_pool='{{ zfs_snapshot_remote_pool }}'
+remote_command_prefix='{{ zfs_snapshot_remote_command_prefix }}'
+remote_ssh_opts=({{ zfs_snapshot_remote_ssh_options | join(" ") }})
 
 # prefix to use for snapshots created by this script
 snapshot_prefix='{{ zfs_snapshot_prefix }}'
