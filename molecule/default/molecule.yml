@@ -28,6 +28,7 @@ provisioner:
         zfs_remote_server: 'example.com'
         zfs_remote_ssh_options:
           - '-i /root/backup/backup.key'
+        zfs_pools_restart_share_enable: true
 platforms:
   - name: 'zfs-debian-12-vm-default'
     box: 'debian/bookworm64'

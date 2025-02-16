@@ -42,6 +42,11 @@ zfs_pools: []
 # Default: False.
 zfs_pools_force: false
 
+# Export NFS/SMB shares on completion?
+#
+# Default: False.
+zfs_pools_restart_share_enable: false
+
 ###############################################################################
 # ZFS Snapshot User
 ###############################################################################

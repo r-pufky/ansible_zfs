@@ -20,3 +20,9 @@
   ansible.builtin.import_tasks: 'modprobe.yml'
 - name: 'Incremental snapshots'
   ansible.builtin.import_tasks: 'incremental_snapshots.yml'
+
+- name: 'Restart ZFS shares'
+  when: zfs_pools_restart_share_enable
+  ansible.builtin.service:
+    name: 'zfs-share'
+    state: 'restarted'
