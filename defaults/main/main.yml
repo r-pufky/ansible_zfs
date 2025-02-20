@@ -1,4 +1,5 @@
 ---
+# yamllint disable rule:line-length
 ###############################################################################
 # ZFS Pool and Snapshot Management
 ###############################################################################
@@ -21,6 +22,10 @@
 #
 # Decision: require all options explicitly stated - no default values are used
 #     here to be explicit about ZFS options used to prevent data loss.
+#
+# ZFS filesystems should export single hosts directly from ZFS which will
+# automatically use the configured NFS server. Complex multi-host exports
+# should be done through nfs_exports.
 #
 # zfs_pools:
 #     list of dict - ZFS pool settings.
@@ -66,6 +71,7 @@
 # Reference:
 # * https://openzfs.github.io/openzfs-docs
 # * https://manpages.debian.org/bookworm/zfsutils-linux/zfsprops.7.en.html
+# * https://forums.freebsd.org/threads/zfs-and-nfs-to-multiple-nic-netwokrs.35550/
 zfs_pools: []
 
 # Force import pools?
