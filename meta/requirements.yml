@@ -1,7 +1,9 @@
 ---
 # yamllint disable rule:line-length
 collections:
-  - 'community.general'  # https://docs.ansible.com/ansible/latest/collections/community/general/
-  - 'r_pufky.srv'  # https://github.com/r-pufky/ansible_collection_srv
+  - name: 'community.general'  # https://docs.ansible.com/ansible/latest/collections/community/general/
 
-roles: []
+roles:
+  - name: 'r_pufky.srv.apt'  # https://github.com/r-pufky/ansible_collection_srv
+  - name: 'r_pufky.srv.systemd'  # https://github.com/r-pufky/ansible_collection_srv
+  - name: 'r_pufky.srv.users'  # https://github.com/r-pufky/ansible_collection_srv
