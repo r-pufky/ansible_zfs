@@ -44,7 +44,7 @@ zfs_role_user:
   shell: '/bin/bash'
   home: '/etc/zfs_snapshot'
   create_home: true
-  password: '!'
+  password: '*'
   password_lock: true
   update_password: 'always'
   expires: -1

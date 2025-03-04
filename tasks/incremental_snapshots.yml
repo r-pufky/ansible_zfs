@@ -3,7 +3,7 @@
 ###############################################################################
 # Setup ZFS incremental snapshots
 ###############################################################################
-# Only given permission to datasets (NOT root pool) will allow snapshot
+# Only giving permission to datasets (NOT root pool) will allow snapshot
 # deletion without deleting pool.
 #
 # Reference:
@@ -11,7 +11,9 @@
 
 - name: 'Incremental snapshots | set zfs_snapshot permission (mount,destroy) for snapshots'
   ansible.builtin.command: '/usr/sbin/zfs allow -d {{ zfs_user }} mount,destroy {{ item }}'
-  changed_when: false
+  register: _zfs_set
+  changed_when: _zfs_set.rc == 0
+  failed_when: _zfs_set.rc > 0
   loop: '{{ zfs_snapshot_datasets }}'
 
 - name: 'Incremental snapshots | set incremental snapshot script'

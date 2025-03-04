@@ -53,10 +53,14 @@ zfs_snapshot_enable: false
 # * https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html
 zfs_snapshot_schedule: 'weekly'
 
-# List of ZFS datasets to take incremental snapshots.
+# List of fully qualified ZFS datasets to take incremental snapshots.
 #
-# Datasets are sync'ed recursively by default with zfs_snapshot_opts, so only
-# the root dataset needs to be listed to sync.
+# Datasets are specified with {POOL}/{DATASET}. Only root datasets need to be
+# specified if zfs_snapshot_options=['-R', '-w'] to sync.
+#
+# zfs_snapshot_datasets:
+#   - 'tank/archive'
+#   - 'tank/media'
 #
 # Default: [].
 zfs_snapshot_datasets: []
@@ -80,7 +84,7 @@ zfs_snapshot_retention: 2
 #
 # Reference:
 # * https://openzfs.github.io/openzfs-docs/man/8/zfs-snapshot.8.html
-zfs_snapshot_opts:
+zfs_snapshot_options:
   - '-r'
 
 # Additional ZFS send options.
@@ -89,7 +93,7 @@ zfs_snapshot_opts:
 #
 # Reference:
 # * https://openzfs.github.io/openzfs-docs/man/8/zfs-send.8.html
-zfs_snapshot_send_opts:
+zfs_snapshot_send_options:
   - '-R'
   - '-w'
 

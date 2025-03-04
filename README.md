@@ -65,7 +65,8 @@ All options must be explicitly set.
     zfs_snapshot_remote_pool: 'backup_tank'
     zfs_snapshot_remote_server: 'example.com'
     zfs_snapshot_remote_ssh_options:
-      - '-i /root/backup/backup.key'
+      - '-i'
+      - '/root/backup/backup.key'
 ```
 
 ## Development

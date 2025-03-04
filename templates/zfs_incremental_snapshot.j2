@@ -35,9 +35,9 @@ snapshot_prefix='{{ zfs_snapshot_prefix }}'
 # Number of snapshots to retain after successful sync. 0 disables.
 snapshot_retention={{ zfs_snapshot_retention }}
 # snapshot options: https://openzfs.github.io/openzfs-docs/man/8/zfs-snapshot.8.html
-snapshot_opts=({{ zfs_snapshot_opts | join(" ") }})
+snapshot_opts=({{ zfs_snapshot_options | join(" ") }})
 # send options: https://openzfs.github.io/openzfs-docs/man/8/zfs-send.8.html
-send_opts=({{ zfs_snapshot_send_opts | join(" ") }})
+send_opts=({{ zfs_snapshot_send_options | join(" ") }})
 ################################################################################
 
 SSH() {
@@ -98,7 +98,7 @@ process() {
     echo "zfs sending ${snap} to ${rds}"
   fi
   # Receive options: Always use snapshot as base (remote changes on after
-  # snapshot will cause recieve to fail otherwise); recieving pool receieves
+  # snapshot will cause receive to fail otherwise); receiving pool receives
   # filesystem unmounted to prevent mount collisions.
   if ! sudo /usr/sbin/zfs send "${send_opts[@]}" "${inc_opts[@]}" "${snap}" | SSH /usr/sbin/zfs recv -Fuv "${rds}"; then
     echo "[ERROR] failed to send $snap to ${remote_server} ${rds}" >&2

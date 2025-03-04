@@ -24,6 +24,7 @@ provisioner:
       all:
         zfs_create_user: true
         zfs_snapshot_enable: true
+        zfs_snapshot_remote_user: 'zfs_snapshot'
         zfs_snapshot_remote_pool: 'test_pool'
         zfs_snapshot_remote_server: 'example.com'
         zfs_snapshot_remote_ssh_options:

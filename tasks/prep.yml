@@ -25,3 +25,19 @@
 
       {{ item.name }}.datasets is missing or incorrect.
   loop: '{{ zfs_pools }}'
+
+- name: 'Prep | assert ZFS snapshot requirements'
+  when: zfs_snapshot_enable
+  ansible.builtin.assert:
+    that:
+      - zfs_snapshot_remote_user | length > 0
+      - zfs_snapshot_remote_pool | length > 0
+      - zfs_snapshot_remote_server | length > 0
+      - zfs_snapshot_remote_port > 0
+    fail_msg: |
+      ZFS snapshots require minimum configuration:
+
+        zfs_snapshot_remote_user
+        zfs_snapshot_remote_pool
+        zfs_snapshot_remote_server
+        zfs_snapshot_remote_port

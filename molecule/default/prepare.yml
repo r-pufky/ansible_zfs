@@ -24,7 +24,7 @@
       changed_when: false
 
     - name: 'Default | prepare | create zpool dataset data'
-      ansible.builtin.command: 'zpool create test/data'
+      ansible.builtin.command: 'zfs create test/data'
       changed_when: false
 
     - name: 'Default | prepare | export zpool test'
