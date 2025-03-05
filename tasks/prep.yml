@@ -6,6 +6,7 @@
 
 - name: 'Prep | assert pool scrub requirements'
   ansible.builtin.assert:
+    quiet: true
     that:
       - item.scrub is search("") or
         item.scrub is search("weekly") or
@@ -18,6 +19,7 @@
 
 - name: 'Prep | assert pool dataset requirements'
   ansible.builtin.assert:
+    quiet: true
     that:
       - '"datasets" in item'
     fail_msg: |
@@ -29,6 +31,7 @@
 - name: 'Prep | assert ZFS snapshot requirements'
   when: zfs_snapshot_enable
   ansible.builtin.assert:
+    quiet: true
     that:
       - zfs_snapshot_remote_user | length > 0
       - zfs_snapshot_remote_pool | length > 0
