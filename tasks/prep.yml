@@ -16,6 +16,8 @@
 
       {{ item.name }}.scrub is missing or incorrect.
   loop: '{{ zfs_pools }}'
+  loop_control:
+    label: '{{ item.name | default("") }}'
 
 - name: 'Prep | assert pool dataset requirements'
   ansible.builtin.assert:
@@ -27,6 +29,8 @@
 
       {{ item.name }}.datasets is missing or incorrect.
   loop: '{{ zfs_pools }}'
+  loop_control:
+    label: '{{ item.name | default("") }}'
 
 - name: 'Prep | assert ZFS snapshot requirements'
   when: zfs_snapshot_enable

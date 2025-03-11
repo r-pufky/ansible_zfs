@@ -32,3 +32,4 @@
   loop: '{{ zfs_pools }}'
   loop_control:
     loop_var: pool
+    label: '{{ pool.name }}'
