@@ -45,5 +45,5 @@
     container: '{{ pool.name }}'
   loop: '{{ pool.datasets }}'
   loop_control:
-    loop_var: set
+    loop_var: 'set'
     label: '{{ set.name }}'
