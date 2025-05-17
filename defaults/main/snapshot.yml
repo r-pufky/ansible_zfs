@@ -25,7 +25,7 @@ zfs_group: 'zfs_snapshot'
 
 # Create zfs_user, zfs_group if not detected?
 #
-# Applied via r_pufky.srv.users, see vars/main.yml for default user attributes.
+# Applied via r_pufky.deb.users, see vars/main.yml for default user attributes.
 #
 # Default: True.
 zfs_create_user: true

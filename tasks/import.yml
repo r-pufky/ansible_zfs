@@ -14,17 +14,43 @@
 #   > modprobe: ERROR: could not insert 'zfs': Key was rejected by service
 #
 # This requires installing the MOK (machine owners key) before applying this
-# role. See r_pufky.srv.secure_boot.
+# role. See r_pufky.deb.secure_boot.
 #
 # Reference:
 # * https://wiki.debian.org/SecureBoot#DKMS_and_secure_boot
 # * https://forum.proxmox.com/threads/zfs-unable-to-load-on-fresh-install.36959/
 # * https://r-pufky.github.io/docs/virtualization/hypervisors/pve/index.html#mount-external-zfs-pool
+# yamllint enable rule:line-length
 
-- name: 'Import | modprobe kernel module'
-  community.general.modprobe:
-    name: 'zfs'
-    state: 'present'
+- name: 'Import | modprobe'
+  block:
+    - name: 'Import | modprobe | kernel module'
+      community.general.modprobe:
+        name: 'zfs'
+        state: 'present'
+  rescue:
+    - name: 'Import | modprobe | FAILED ⚠'
+      ansible.builtin.debug:
+        msg: |
+          ⚠ modprobe zfs failed.
+
+          Older base OS images may use kernels that are no longer in the
+          linux-{headers,image} meta-package. Rebooting ensures the latest
+          kernel is running on the system.
+
+    - name: 'Import | modprobe | REBOOT 🗘'
+      when: zfs_kernel_module_restart_enable
+      ansible.builtin.debug:
+        msg: |
+          🗘 Machine is rebooting. This may take a few minutes.
+
+    - name: 'Import | modprobe | reboot'
+      ansible.builtin.reboot:
+
+    - name: 'Import | modprobe | kernel module'
+      community.general.modprobe:
+        name: 'zfs'
+        state: 'present'
 
 - name: 'Import | importing ZFS pools (if needed)'
   when: zfs_pools | length > 0

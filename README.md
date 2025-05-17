@@ -4,18 +4,16 @@ ZFS Pool and snapshot management for ansible hosts.
 ## Requirements
 [supported platforms](https://github.com/r-pufky/ansible_zfs/blob/main/meta/main.yml)
 
-[collections/roles](https://github.com/r-pufky/ansible_zfs/blob/main/meta/requirements.yml)
-
 ## Role Variables
 [defaults](https://github.com/r-pufky/ansible_zfs/blob/main/defaults/main)
 
 ## Dependencies
-Part of the [r_pufky.srv](https://github.com/r-pufky/ansible_collection_srv)
-collection.
+**galaxy-ng** roles cannot be used independently. Part of
+[r_pufky.deb](https://github.com/r-pufky/ansible_collection_deb) collection.
 
 ## Example Playbook
 Manages existing ZFS pools, scrubbing schedules, and snapshot backups. Secure
-boot enabled systems should apply [r_pufky.srv.secure_boot](https://github.com/r-pufky/ansible_secure_boot)
+boot enabled systems should apply [r_pufky.deb.secure_boot](https://github.com/r-pufky/ansible_secure_boot)
 before applying this role to enable secure boot ZFS support.
 
 Use `community.general.zfs` to manage ZFS pool creation.
@@ -32,7 +30,7 @@ All options must be explicitly set.
 ``` yaml
 - name: 'Manage ZFS pools'
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.zfs'
+    name: 'r_pufky.deb.zfs'
   vars:
     zfs_pools:
       - name: 'tank'
@@ -70,7 +68,7 @@ All options must be explicitly set.
 ```
 
 ## Development
-Configure [environment](https://github.com/r-pufky/ansible_collection_srv/blob/main/docs/dev/environment/README.md)
+Configure [environment](https://github.com/r-pufky/ansible_collection_docs/blob/main/dev/environment/README.md)
 
 Run all unit tests:
 ``` bash

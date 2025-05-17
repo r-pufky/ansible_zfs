@@ -13,7 +13,7 @@
 #   > modprobe: ERROR: could not insert 'zfs': Key was rejected by service
 #
 # This requires installing the MOK (machine owners key) before applying this
-# role. See r_pufky.srv.secure_boot.
+# role. See r_pufky.deb.secure_boot.
 
 # List of dict ZFS pools to manage.
 #
@@ -73,6 +73,15 @@
 # * https://manpages.debian.org/bookworm/zfsutils-linux/zfsprops.7.en.html
 # * https://forums.freebsd.org/threads/zfs-and-nfs-to-multiple-nic-netwokrs.35550/
 zfs_pools: []
+
+# Enable machine restart if kernel module cannot be loaded?
+#
+# Old base OS installs may be running kernels which are no longer included in
+# the linux-{headers,image} metapackages. Instead of failing modprobe, attempt
+# to reboot the machine with the new kernel.
+#
+# Default: True.
+zfs_kernel_module_restart_enable: true
 
 # Force import pools?
 #

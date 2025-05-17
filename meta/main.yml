@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: 'zfs'
   author: 'r_pufky'
   description: 'ZFS Pool & Snapshot Management'
   company: 'N/A'

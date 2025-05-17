@@ -1,7 +1,17 @@
 ---
+###############################################################################
+# Default
+###############################################################################
 # ZFS module installs (non-secure boot), role account is created, snapshot
 # script deployed and scheduled job is started. VM required as ZFS loads kernel
 # modules.
+#
+# Tests:
+# * zpool atime disabled.
+# * zpool xattr is sa.
+# * zpool dnode size is auto.
+# * zpool NFS share is 'rw=10.10.10.0/24,sec=sys,mountpoint'.
+
 dependency:
   name: 'galaxy'
 driver:
@@ -17,8 +27,8 @@ provisioner:
   name: 'ansible'
   config_options:
     defaults:
-      interpreter_python: 'auto_silent'  # suppress warnings
-      callback_whitelist: 'profile_tasks, timer, yaml'  # output profiling info
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
   inventory:
     group_vars:
       all:

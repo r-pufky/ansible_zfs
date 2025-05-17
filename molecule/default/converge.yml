@@ -4,8 +4,8 @@
   gather_facts: true  # ansible_kernel
   become: true
   tasks:
-    - name: 'Default | converge | apply r_pufky.srv.zfs'
+    - name: 'Default | converge | apply r_pufky.deb.zfs'
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.zfs'
+        name: 'r_pufky.deb.zfs'
       vars:
         zfs_pools: [{name: 'test', scrub: 'monthly', datasets: []}]

@@ -1,5 +1,6 @@
 ---
 # yamllint disable rule:line-length
+
 - name: 'Default | verify'
   hosts: 'all'
   gather_facts: true  # ansible_facts.mounts
@@ -18,10 +19,11 @@
 
     - name: 'Default | verify | assert default ZFS user correct'
       ansible.builtin.assert:
+        quiet: true
         that:
           - not _test_zfs_user.changed
         fail_msg: |
-          zfs_user should have been created with sudoers access.
+          ✘ zfs_user should have been created with sudoers access.
 
           Expected:
             /etc/sudoers.d/zfs_snapshot:
@@ -30,24 +32,18 @@
           Received:
             {{ _test_zfs_user.diff }}
 
-    - name: 'Default | verify | query default /etc/zfs_snapshot/zfs_incremental_snapshot'
-      ansible.builtin.copy:
-        src: 'files/zfs_incremental_snapshot'
-        dest: '/etc/zfs_snapshot/zfs_incremental_snapshot'
-        owner: 'zfs_snapshot'
-        group: 'zfs_snapshot'
-        mode: '0755'
-      check_mode: true
-      diff: true
-      register: _test_zfs_snapshot
-
-    - name: 'Default | verify | assert default /etc/zfs_snapshot/zfs_incremental_snapshot'
-      ansible.builtin.assert:
-        that:
-          - not _test_zfs_snapshot.changed
-        fail_msg: >
-          /etc/zfs_snapshot/zfs_incremental_snapshot should have been created
-          with sane defaults (received: {{ _test_zfs_snapshot.diff }}).
+    - name: 'Default | verify | /etc/zfs_snapshot/zfs_incremental_snapshot'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name:
+          'Default | verify | /etc/zfs_snapshot/zfs_incremental_snapshot'
+        test_src: 'files/zfs_incremental_snapshot'
+        test_file: '/etc/zfs_snapshot/zfs_incremental_snapshot'
+        test_owner: 'zfs_snapshot'
+        test_group: 'zfs_snapshot'
+        test_mode: '0755'
 
     - name: 'Default | verify | query ZFS pool test imported'
       ansible.builtin.command: 'zpool list test'
@@ -55,36 +51,41 @@
       changed_when: false
       failed_when: false
 
-    - name: 'Default | verify | query ZFS pool test mounted'  # noqa: command-instead-of-module querying mounts not setting them
-      ansible.builtin.command: 'mount'
+    # Query mounts, not setting them.
+    - name: 'Default | verify | query ZFS pool test mounted'
+      ansible.builtin.command: 'mount'  # noqa: command-instead-of-module
       register: _test_zfs_pool_mount
       changed_when: false
       failed_when: false
 
     - name: 'Default | verify | assert ZFS pool test imported'
       ansible.builtin.assert:
+        quiet: true
         that:
           - _test_zfs_pool_test.rc == 0
         fail_msg: >
-          zpool test not imported. (exit code: {{ _test_zfs_pool_test.rc }}).
+          ✘ zpool test not imported. (exit code: {{ _test_zfs_pool_test.rc }}).
 
     - name: 'Default | verify | assert ZFS pool test mounted'
       ansible.builtin.assert:
+        quiet: true
         that:
           - '"test on /test" in _test_zfs_pool_mount.stdout'
         fail_msg: >
-          zpool test should be mounted to /test.
+          ✘ zpool test should be mounted to /test.
 
+    # systemd ansible module does not report timers.
     - name: 'Default | verify | gather timer status'
-      ansible.builtin.command: 'systemctl list-timers'  # noqa: command-instead-of-module systemd ansible module does not report timers
+      ansible.builtin.command: 'systemctl list-timers'  # noqa: command-instead-of-module
       register: _test_zfs_scrub
       changed_when: false
 
     - name: 'Default | verify | assert scrub service active'
       ansible.builtin.assert:
+        quiet: true
         that:
           - '"zfs-scrub-monthly@test.timer" in _test_zfs_scrub.stdout'
         fail_msg: |
-          zfs-scrub-monthy@test.timer should be in enabled list of timers.
+          ✘ zfs-scrub-monthy@test.timer should be in enabled list of timers.
 
           {{ _test_zfs_scrub.stdout }}

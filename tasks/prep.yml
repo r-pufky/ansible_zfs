@@ -12,7 +12,7 @@
         item.scrub is search("weekly") or
         item.scrub is search("monthly")
     fail_msg: |
-      zfs_pools must always be fully defined.
+      ✘ zfs_pools must always be fully defined.
 
       {{ item.name }}.scrub is missing or incorrect.
   loop: '{{ zfs_pools }}'
@@ -25,7 +25,7 @@
     that:
       - '"datasets" in item'
     fail_msg: |
-      zfs_pools must always be fully defined.
+      ✘ zfs_pools must always be fully defined.
 
       {{ item.name }}.datasets is missing or incorrect.
   loop: '{{ zfs_pools }}'
@@ -42,9 +42,9 @@
       - zfs_snapshot_remote_server | length > 0
       - zfs_snapshot_remote_port > 0
     fail_msg: |
-      ZFS snapshots require minimum configuration:
+      ✘ ZFS snapshots require minimum configuration:
 
-        zfs_snapshot_remote_user
-        zfs_snapshot_remote_pool
-        zfs_snapshot_remote_server
-        zfs_snapshot_remote_port
+        zfs_snapshot_remote_user: {{ zfs_snapshot_remote_user }}
+        zfs_snapshot_remote_pool: {{ zfs_snapshot_remote_pool }}
+        zfs_snapshot_remote_server: {{ zfs_snapshot_remote_server }}
+        zfs_snapshot_remote_port: {{ zfs_snapshot_remote_port }}

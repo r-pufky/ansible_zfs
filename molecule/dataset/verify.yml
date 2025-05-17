@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 - name: 'Dataset | verify'
   hosts: 'all'
   gather_facts: true  # ansible_facts.mounts
@@ -13,10 +12,11 @@
 
     - name: 'Dataset | verify | assert ZFS pool test/data atime'
       ansible.builtin.assert:
+        quiet: true
         that:
           - _test_zfs_pool_atime.stdout == 'off'
         fail_msg: >
-          test/data property should be atime=off.
+          ✘ test/data property should be atime=off.
           (atime={{ _test_zfs_pool_atime.stdout }}).
 
     - name: 'Dataset | verify | query ZFS pool test/data xattr'
@@ -27,10 +27,11 @@
 
     - name: 'Dataset | verify | assert ZFS pool test/data xattr'
       ansible.builtin.assert:
+        quiet: true
         that:
           - _test_zfs_pool_xattr.stdout == 'sa'
         fail_msg: >
-          test/data property should be xattr=sa.
+          ✘ test/data property should be xattr=sa.
           (xattr={{ _test_zfs_pool_xattr.stdout }}).
 
     - name: 'Dataset | verify | query ZFS pool test/data dnodesize'
@@ -41,10 +42,11 @@
 
     - name: 'Dataset | verify | assert ZFS pool test/data dnodesize'
       ansible.builtin.assert:
+        quiet: true
         that:
           - _test_zfs_pool_dnodesize.stdout == 'auto'
         fail_msg: >
-          test/data property should be dnodesize=auto.
+          ✘ test/data property should be dnodesize=auto.
           (dnodesize={{ _test_zfs_pool_dnodesize.stdout }}).
 
     - name: 'Dataset | verify | query ZFS pool test/data sharenfs'
@@ -55,8 +57,10 @@
 
     - name: 'Dataset | verify | assert ZFS pool test/data sharenfs'
       ansible.builtin.assert:
+        quiet: true
         that:
-          - _test_zfs_pool_sharenfs.stdout == 'rw=10.10.10.0/24,sec=sys,mountpoint'
+          - _test_zfs_pool_sharenfs.stdout == 'rw=10.10.10.0/24,sec=sys,mountpoint'  # yamllint disable-line rule:line-length
         fail_msg: >
-          test/data property should be sharenfs=rw=10.10.10.0/24,sec=sys,mountpoint.
+          ✘ test/data property should be
+          sharenfs=rw=10.10.10.0/24,sec=sys,mountpoint.
           (sharenfs={{ _test_zfs_pool_sharenfs.stdout }}).

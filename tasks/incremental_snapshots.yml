@@ -8,9 +8,19 @@
 #
 # Reference:
 # * https://zfs-discuss.opensolaris.narkive.com/GuN3T2n9/zfs-allow-destroy-and-rmdir-to-remove-snapshot
+# yamllint enable rule:line-length
 
-- name: 'Incremental snapshots | set zfs_snapshot permission (mount,destroy) for snapshots'
-  ansible.builtin.command: '/usr/sbin/zfs allow -d {{ zfs_user }} mount,destroy {{ item }}'
+- name: >
+    Incremental snapshots |
+    set zfs_snapshot permission (mount,destroy) for snapshots
+  ansible.builtin.command:
+    argv:
+      - '/usr/sbin/zfs'
+      - 'allow'
+      - '-d'
+      - '{{ zfs_user }}'
+      - 'mount,destroy'
+      - '{{ item }}'
   register: _zfs_set
   changed_when: _zfs_set.rc == 0
   failed_when: _zfs_set.rc > 0
@@ -28,7 +38,7 @@
 - name: 'Incremental snapshots | enable scheduled jobs'
   when: zfs_snapshot_enable
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.systemd'
+    name: 'r_pufky.deb.systemd'
   vars:
     systemd_services:
       - name: 'zfs_snapshot'
@@ -58,7 +68,7 @@
 - name: 'Incremental snapshots | disable scheduled jobs'
   when: not zfs_snapshot_enable
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.systemd'
+    name: 'r_pufky.deb.systemd'
   vars:
     systemd_services:
       - name: 'zfs_snapshot'

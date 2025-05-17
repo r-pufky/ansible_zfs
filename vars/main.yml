@@ -11,7 +11,7 @@ zfs_role_validate_release: 'bookworm'
 # APT Packages
 ###############################################################################
 # Secure boot support is automatic once the DKMS keys are loaded. See
-# r_pufky.srv.secure_boot.
+# r_pufky.deb.secure_boot.
 #
 # Reference:
 # * https://openzfs.github.io/openzfs-docs/Getting%20Started/Debian/index.html
@@ -20,10 +20,6 @@ zfs_role_packages:
   - 'zfsutils-linux'
   - 'zfs-dkms'
   - 'dpkg-dev'
-  # current kernel build files
-  - 'linux-headers-{{ ansible_kernel }}'
-  - 'linux-image-{{ ansible_kernel }}'
-  # future kernel build files
   - 'linux-headers-amd64'
   - 'linux-image-amd64'
 

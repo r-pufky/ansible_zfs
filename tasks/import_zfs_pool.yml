@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Import ZFS pools if defined
 ###############################################################################
@@ -8,7 +7,9 @@
 #   pool: dict - ZFS pool settings to import (item from zfs_pools).
 
 - name: 'Import ZFS pool | query pool state'
-  ansible.builtin.shell: 'set -o pipefail && /usr/sbin/zpool list -H | grep "{{ pool.name }}"'
+  ansible.builtin.shell: >
+    set -o pipefail &&
+    /usr/sbin/zpool list -H | grep "{{ pool.name }}"
   args:
     executable: '/bin/bash'
   register: _zfs_query
@@ -17,7 +18,12 @@
 
 - name: 'Import ZFS pool | import {{ pool.name }}'
   when: _zfs_query.rc == 1
-  ansible.builtin.command: '/usr/sbin/zpool import "{{ pool.name }}" {{ "-f" if zfs_pools_force else "" }}'
+  ansible.builtin.shell: >
+     /usr/sbin/zpool import
+     "{{ pool.name }}"
+     {{ "-f" if zfs_pools_force else "" }}
+  args:
+    executable: '/bin/bash'
   register: _zfs_import
   changed_when: _zfs_import.rc == 0
 

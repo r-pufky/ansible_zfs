@@ -1,14 +1,13 @@
 ---
-# yamllint disable rule:line-length
 - name: 'Default | prepare'
   hosts: 'all'
   gather_facts: true  # ansible_kernel
   become: true
   tasks:
     # Apply the role in default state to support ZFS operations
-    - name: 'Default | prepare | apply r_pufky.srv.zfs'
+    - name: 'Default | prepare | apply r_pufky.deb.zfs'
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.zfs'
+        name: 'r_pufky.deb.zfs'
 
     # Create testing pool for convergence testing
     - name: 'Default | prepare | create file block devices'
