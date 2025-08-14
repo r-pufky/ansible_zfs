@@ -1,12 +1,10 @@
 ---
-# yamllint disable rule:line-length
-
-- name: 'Default | verify'
+- name: 'Verify'
   hosts: 'all'
   gather_facts: true  # ansible_facts.mounts
   become: true
   tasks:
-    - name: 'Default | verify | query default ZFS user creation'
+    - name: 'Verify | query default ZFS user creation'
       ansible.builtin.copy:
         content: "zfs_snapshot ALL=(ALL)NOPASSWD: /usr/sbin/zfs\n"
         dest: '/etc/sudoers.d/zfs_snapshot'
@@ -17,7 +15,7 @@
       diff: true
       register: _test_zfs_user
 
-    - name: 'Default | verify | assert default ZFS user correct'
+    - name: 'Verify | assert default ZFS user correct'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -32,33 +30,34 @@
           Received:
             {{ _test_zfs_user.diff }}
 
-    - name: 'Default | verify | /etc/zfs_snapshot/zfs_incremental_snapshot'
+    - name: 'Verify | /etc/zfs_snapshot/zfs_incremental_snapshot'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
         test_name:
-          'Default | verify | /etc/zfs_snapshot/zfs_incremental_snapshot'
+          'Verify | /etc/zfs_snapshot/zfs_incremental_snapshot'
         test_src: 'files/zfs_incremental_snapshot'
         test_file: '/etc/zfs_snapshot/zfs_incremental_snapshot'
         test_owner: 'zfs_snapshot'
         test_group: 'zfs_snapshot'
         test_mode: '0755'
+        test_diff: true
 
-    - name: 'Default | verify | query ZFS pool test imported'
+    - name: 'Verify | query ZFS pool test imported'
       ansible.builtin.command: 'zpool list test'
       register: _test_zfs_pool_test
       changed_when: false
       failed_when: false
 
     # Query mounts, not setting them.
-    - name: 'Default | verify | query ZFS pool test mounted'
+    - name: 'Verify | query ZFS pool test mounted'
       ansible.builtin.command: 'mount'  # noqa: command-instead-of-module
       register: _test_zfs_pool_mount
       changed_when: false
       failed_when: false
 
-    - name: 'Default | verify | assert ZFS pool test imported'
+    - name: 'Verify | assert ZFS pool test imported'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -66,7 +65,7 @@
         fail_msg: >
           ✘ zpool test not imported. (exit code: {{ _test_zfs_pool_test.rc }}).
 
-    - name: 'Default | verify | assert ZFS pool test mounted'
+    - name: 'Verify | assert ZFS pool test mounted'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -75,12 +74,12 @@
           ✘ zpool test should be mounted to /test.
 
     # systemd ansible module does not report timers.
-    - name: 'Default | verify | gather timer status'
-      ansible.builtin.command: 'systemctl list-timers'  # noqa: command-instead-of-module
+    - name: 'Verify | gather timer status'  # noqa: command-instead-of-module
+      ansible.builtin.command: 'systemctl list-timers'
       register: _test_zfs_scrub
       changed_when: false
 
-    - name: 'Default | verify | assert scrub service active'
+    - name: 'Verify | assert scrub service active'
       ansible.builtin.assert:
         quiet: true
         that:

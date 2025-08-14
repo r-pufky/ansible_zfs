@@ -32,17 +32,25 @@
     - name: 'Import | modprobe | FAILED ⚠'
       ansible.builtin.debug:
         msg: |
-          ⚠ modprobe zfs failed.
-
-          Older base OS images may use kernels that are no longer in the
-          linux-{headers,image} meta-package. Rebooting ensures the latest
-          kernel is running on the system.
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                       modprobe zfs failed.                        │
+          │                                                                   │
+          │ Older base OS images may use kernels that are no longer in the    │
+          │ linux-{headers,image} meta-package. Rebooting ensures the latest  │
+          │ kernel is running on the system.                                  │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Import | modprobe | REBOOT 🗘'
       when: zfs_kernel_module_restart_enable
       ansible.builtin.debug:
         msg: |
-          🗘 Machine is rebooting. This may take a few minutes.
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │        Machine is rebooting. This may take a few minutes.         │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Import | modprobe | reboot'
       ansible.builtin.reboot:

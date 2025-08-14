@@ -1,31 +1,31 @@
 ---
-- name: 'Default | prepare'
+- name: 'Prepare'
   hosts: 'all'
   gather_facts: true  # ansible_kernel
   become: true
   tasks:
     # Apply the role in default state to support ZFS operations
-    - name: 'Default | prepare | apply r_pufky.deb.zfs'
+    - name: 'Prepare | apply r_pufky.deb.zfs'
       ansible.builtin.include_role:
         name: 'r_pufky.deb.zfs'
 
     # Create testing pool for convergence testing
-    - name: 'Default | prepare | create file block devices'
+    - name: 'Prepare | create file block devices'
       ansible.builtin.command: 'dd if=/dev/zero of=/tmp/fblk bs=1M count=128'
       changed_when: false
 
-    - name: 'Default | prepare | setup file block loopback device'
+    - name: 'Prepare | setup file block loopback device'
       ansible.builtin.command: 'losetup /dev/loop0 /tmp/fblk'
       changed_when: false
 
-    - name: 'Default | prepare | create zpool test'
+    - name: 'Prepare | create zpool test'
       ansible.builtin.command: 'zpool create test /dev/loop0'
       changed_when: false
 
-    - name: 'Default | prepare | create zpool dataset data'
+    - name: 'Prepare | create zpool dataset data'
       ansible.builtin.command: 'zfs create test/data'
       changed_when: false
 
-    - name: 'Default | prepare | export zpool test'
+    - name: 'Prepare | export zpool test'
       ansible.builtin.command: 'zpool export test'
       changed_when: false

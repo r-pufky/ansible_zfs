@@ -1,16 +1,16 @@
 ---
-- name: 'Dataset | verify'
+- name: 'Verify'
   hosts: 'all'
   gather_facts: true  # ansible_facts.mounts
   become: true
   tasks:
-    - name: 'Dataset | verify | query ZFS pool test/data atime'
+    - name: 'Verify | query ZFS pool test/data atime'
       ansible.builtin.command: 'zfs get -H -o value atime test/data'
       register: _test_zfs_pool_atime
       changed_when: false
       failed_when: false
 
-    - name: 'Dataset | verify | assert ZFS pool test/data atime'
+    - name: 'Verify | assert ZFS pool test/data atime'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -19,13 +19,13 @@
           ✘ test/data property should be atime=off.
           (atime={{ _test_zfs_pool_atime.stdout }}).
 
-    - name: 'Dataset | verify | query ZFS pool test/data xattr'
+    - name: 'Verify | query ZFS pool test/data xattr'
       ansible.builtin.command: 'zfs get -H -o value xattr test/data'
       register: _test_zfs_pool_xattr
       changed_when: false
       failed_when: false
 
-    - name: 'Dataset | verify | assert ZFS pool test/data xattr'
+    - name: 'Verify | assert ZFS pool test/data xattr'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -34,13 +34,13 @@
           ✘ test/data property should be xattr=sa.
           (xattr={{ _test_zfs_pool_xattr.stdout }}).
 
-    - name: 'Dataset | verify | query ZFS pool test/data dnodesize'
+    - name: 'Verify | query ZFS pool test/data dnodesize'
       ansible.builtin.command: 'zfs get -H -o value dnodesize test/data'
       register: _test_zfs_pool_dnodesize
       changed_when: false
       failed_when: false
 
-    - name: 'Dataset | verify | assert ZFS pool test/data dnodesize'
+    - name: 'Verify | assert ZFS pool test/data dnodesize'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -49,13 +49,13 @@
           ✘ test/data property should be dnodesize=auto.
           (dnodesize={{ _test_zfs_pool_dnodesize.stdout }}).
 
-    - name: 'Dataset | verify | query ZFS pool test/data sharenfs'
+    - name: 'Verify | query ZFS pool test/data sharenfs'
       ansible.builtin.command: 'zfs get -H -o value sharenfs test/data'
       register: _test_zfs_pool_sharenfs
       changed_when: false
       failed_when: false
 
-    - name: 'Dataset | verify | assert ZFS pool test/data sharenfs'
+    - name: 'Verify | assert ZFS pool test/data sharenfs'
       ansible.builtin.assert:
         quiet: true
         that:
