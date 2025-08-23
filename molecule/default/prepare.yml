@@ -1,15 +1,15 @@
 ---
 - name: 'Prepare'
   hosts: 'all'
-  gather_facts: true  # ansible_kernel
+  gather_facts: true  # ansible_kernel.
   become: true
   tasks:
-    # Apply the role in default state to support ZFS operations
+    # Apply the role in default state to support ZFS operations.
     - name: 'Prepare | apply r_pufky.deb.zfs'
       ansible.builtin.include_role:
         name: 'r_pufky.deb.zfs'
 
-    # Create testing pool for convergence testing
+    # Create testing pool for convergence testing.
     - name: 'Prepare | create file block devices'
       ansible.builtin.command: 'dd if=/dev/zero of=/tmp/fblk bs=1M count=128'
       changed_when: false

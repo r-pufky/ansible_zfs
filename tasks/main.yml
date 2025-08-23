@@ -8,6 +8,7 @@
   vars:
     apt_packages:
       - '{{ zfs_role_packages }}'
+      - '{{ zfs_role_nfs_packages if _zfs_nfs_required else [] }}'
     apt_package_update_cache: true
 
 - name: 'Manage users'

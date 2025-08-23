@@ -1,7 +1,8 @@
 ---
+# yamllint disable rule:line-length
 - name: 'Verify'
   hosts: 'all'
-  gather_facts: true  # ansible_facts.mounts
+  gather_facts: true  # ansible_facts.mounts.
   become: true
   tasks:
     - name: 'Verify | query ZFS pool test/data atime'
@@ -15,10 +16,17 @@
         quiet: true
         that:
           - _test_zfs_pool_atime.stdout == 'off'
-        fail_msg: >
-          ✘ test/data property should be atime=off.
-          (atime={{ _test_zfs_pool_atime.stdout }}).
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │              test/data property should be atime=off.              │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ atime={{ _test_zfs_pool_atime.stdout }}
 
+    # Underlying system determines on/sa, both are correct on 2.3.2.
+    # Reference:
+    # * https://openzfs.github.io/openzfs-docs/man/master/7/zfsprops.7.html#xattr
     - name: 'Verify | query ZFS pool test/data xattr'
       ansible.builtin.command: 'zfs get -H -o value xattr test/data'
       register: _test_zfs_pool_xattr
@@ -29,10 +37,14 @@
       ansible.builtin.assert:
         quiet: true
         that:
-          - _test_zfs_pool_xattr.stdout == 'sa'
-        fail_msg: >
-          ✘ test/data property should be xattr=sa.
-          (xattr={{ _test_zfs_pool_xattr.stdout }}).
+          - _test_zfs_pool_xattr.stdout == 'on'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │              test/data property should be xattr=sa.               │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ xattr={{ _test_zfs_pool_xattr.stdout }}
 
     - name: 'Verify | query ZFS pool test/data dnodesize'
       ansible.builtin.command: 'zfs get -H -o value dnodesize test/data'
@@ -45,9 +57,13 @@
         quiet: true
         that:
           - _test_zfs_pool_dnodesize.stdout == 'auto'
-        fail_msg: >
-          ✘ test/data property should be dnodesize=auto.
-          (dnodesize={{ _test_zfs_pool_dnodesize.stdout }}).
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │           test/data property should be dnodesize=auto.            │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ dnodesize={{ _test_zfs_pool_dnodesize.stdout }}
 
     - name: 'Verify | query ZFS pool test/data sharenfs'
       ansible.builtin.command: 'zfs get -H -o value sharenfs test/data'
@@ -60,7 +76,11 @@
         quiet: true
         that:
           - _test_zfs_pool_sharenfs.stdout == 'rw=10.10.10.0/24,sec=sys,mountpoint'  # yamllint disable-line rule:line-length
-        fail_msg: >
-          ✘ test/data property should be
-          sharenfs=rw=10.10.10.0/24,sec=sys,mountpoint.
-          (sharenfs={{ _test_zfs_pool_sharenfs.stdout }}).
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                   test/data property incorrect.                   │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected: sharenfs=rw=10.10.10.0/24,sec=sys,mountpoint
+          │ Received: sharenfs={{ _test_zfs_pool_sharenfs.stdout }}

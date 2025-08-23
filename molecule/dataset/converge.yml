@@ -1,7 +1,7 @@
 ---
 - name: 'Converge'
   hosts: 'all'
-  gather_facts: true  # ansible_kernel
+  gather_facts: true  # ansible_kernel.
   become: true
   tasks:
     - name: 'Converge | apply r_pufky.deb.zfs'

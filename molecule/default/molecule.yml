@@ -41,12 +41,13 @@ provisioner:
           - '-i /root/backup/backup.key'
         zfs_pools_restart_share_enable: true
 platforms:
-  - name: 'zfs-debian-12-vm-default'
-    box: 'debian/bookworm64'
+  - name: 'zfs-debian-13-vm-default'
+    # TODO(role): switch to debian/trixie64 when released.
+    box: 'debian/testing64'
     memory: 4096
     cpus: 2
     interfaces:
-      - network_name: private_network  # network_name required
+      - network_name: private_network  # network_name required.
         auto_config: true
         type: 'dhcp'
 verifier:

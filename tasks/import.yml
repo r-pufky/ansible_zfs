@@ -36,11 +36,10 @@
           │                                                                   │
           │                       modprobe zfs failed.                        │
           │                                                                   │
-          │ Older base OS images may use kernels that are no longer in the    │
-          │ linux-{headers,image} meta-package. Rebooting ensures the latest  │
-          │ kernel is running on the system.                                  │
-          │                                                                   │
-          ╰───────────────────────────────────────────────────────────────────╯
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Older base OS images may use kernels that are no longer in the
+          │ linux-{headers,image} meta-package. Rebooting ensures the latest
+          │ kernel is running on the system.
 
     - name: 'Import | modprobe | REBOOT 🗘'
       when: zfs_kernel_module_restart_enable

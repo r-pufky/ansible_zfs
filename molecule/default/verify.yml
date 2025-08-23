@@ -1,7 +1,7 @@
 ---
 - name: 'Verify'
   hosts: 'all'
-  gather_facts: true  # ansible_facts.mounts
+  gather_facts: true  # ansible_facts.mounts.
   become: true
   tasks:
     - name: 'Verify | query default ZFS user creation'
@@ -18,17 +18,18 @@
     - name: 'Verify | assert default ZFS user correct'
       ansible.builtin.assert:
         quiet: true
-        that:
-          - not _test_zfs_user.changed
+        that: 'not _test_zfs_user.changed'
         fail_msg: |
-          ✘ zfs_user should have been created with sudoers access.
-
-          Expected:
-            /etc/sudoers.d/zfs_snapshot:
-              zfs_snapshot ALL=(ALL)NOPASSWD: /usr/sbin/zfs
-
-          Received:
-            {{ _test_zfs_user.diff }}
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │      zfs_user should have been created with sudoers access.       │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Expected:
+          │   /etc/sudoers.d/zfs_snapshot:
+          │     zfs_snapshot ALL=(ALL)NOPASSWD: /usr/sbin/zfs
+          │ Received:
+          │   {{ _test_zfs_user.diff }}
 
     - name: 'Verify | /etc/zfs_snapshot/zfs_incremental_snapshot'
       ansible.builtin.include_role:
@@ -60,18 +61,25 @@
     - name: 'Verify | assert ZFS pool test imported'
       ansible.builtin.assert:
         quiet: true
-        that:
-          - _test_zfs_pool_test.rc == 0
-        fail_msg: >
-          ✘ zpool test not imported. (exit code: {{ _test_zfs_pool_test.rc }}).
+        that: '_test_zfs_pool_test.rc == 0'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │                     zpool test not imported.                      │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ Exit code: {{ _test_zfs_pool_test.rc }}
 
     - name: 'Verify | assert ZFS pool test mounted'
       ansible.builtin.assert:
         quiet: true
-        that:
-          - '"test on /test" in _test_zfs_pool_mount.stdout'
-        fail_msg: >
-          ✘ zpool test should be mounted to /test.
+        that: '"test on /test" in _test_zfs_pool_mount.stdout'
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │              zpool test should be mounted to /test.               │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     # systemd ansible module does not report timers.
     - name: 'Verify | gather timer status'  # noqa: command-instead-of-module
@@ -85,6 +93,9 @@
         that:
           - '"zfs-scrub-monthly@test.timer" in _test_zfs_scrub.stdout'
         fail_msg: |
-          ✘ zfs-scrub-monthy@test.timer should be in enabled list of timers.
-
-          {{ _test_zfs_scrub.stdout }}
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │ zfs-scrub-monthy@test.timer should be in enabled list of timers.  │
+          │                                                                   │
+          ├───────────────────────────────────────────────────────────────────╯
+          │ {{ _test_zfs_scrub.stdout }}

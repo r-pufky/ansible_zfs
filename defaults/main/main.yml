@@ -27,18 +27,20 @@
 # automatically use the configured NFS server. Complex multi-host exports
 # should be done through nfs_exports.
 #
+# nfs-kernel-server will automatically be installed if 'sharenfs' is defined.
+#
 # zfs_pools:
 #     list of dict - ZFS pool settings.
-#   name: str - ZFS pool name
-#   scrub: str - ZFS scrubbing schedule; uses built-in systemd ZFS scrub timers
+#   name: str - ZFS pool name.
+#   scrub: str - ZFS scrub schedule; uses built-in systemd ZFS scrub timers.
 #       Values:
-#         monthly: scrub monthly.
-#         weekly: scrub weekly.
+#         monthly: Scrub monthly.
+#          weekly: Scrub weekly.
 #         '': disabled.
-#   datasets: list of dict - dataset configuration for pool.
+#   datasets: list of dict - Dataset configuration for pool.
 #         Leave empty list to not manage any datasets.
-#     - name: str - dataset name.
-#       properties: list of dict - properties to enforce for dataset.
+#     - name: str - Dataset name.
+#       properties: list of dict - Properties to enforce for dataset.
 #         - option: str - ZFS dataset option.
 #           value: str - ZFS dataset option value.
 #
