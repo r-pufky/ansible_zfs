@@ -18,6 +18,8 @@ before applying this role to enable secure boot ZFS support.
 
 Use `community.general.zfs` to manage ZFS pool creation.
 
+[Additional documentation](http://r-pufky.github.io/r-pufky/docs/service/zfs).
+
 The role provides a built in user, however, a consumer provided user is highly
 recommended.
 
