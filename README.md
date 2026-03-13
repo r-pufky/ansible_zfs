@@ -1,40 +1,54 @@
 # ZFS
 ZFS Pool and snapshot management for ansible hosts.
 
-## Requirements
-[supported platforms](https://github.com/r-pufky/ansible_zfs/blob/main/meta/main.yml)
+## [Requirements][i]
+Requires [r_pufky.deb][g] galaxy-ng collection. See
+[reference documentation][h] for specific ZFS configuration.
 
 ## Role Variables
-[defaults](https://github.com/r-pufky/ansible_zfs/blob/main/defaults/main)
+Detailed variable use documented in defaults. See usage for role operation.
 
-## Dependencies
-**galaxy-ng** roles cannot be used independently. Part of
-[r_pufky.deb](https://github.com/r-pufky/ansible_collection_deb) collection.
+* [defaults][j] - User configurable options.
 
-## Example Playbook
-Manages existing ZFS pools, scrubbing schedules, and snapshot backups. Secure
-boot enabled systems should apply [r_pufky.deb.secure_boot](https://github.com/r-pufky/ansible_secure_boot)
-before applying this role to enable secure boot ZFS support.
+## Usage
+Manages existing ZFS pools, scrubbing schedules, and snapshot backups. Use
+`community.general.zfs` or manual commands to manage ZFS pool creation. All
+options must be explicitly set.
 
-Use `community.general.zfs` to manage ZFS pool creation.
+### Warning
+> ZFS kernel module will be automatically loaded and the specified pools
+> mounted.
+>
+> Secure boot requires signed modules; if the MOK is not loaded and secure boot
+> is enabled, the module will fail to load with the message:
+>
+>   /sbin/modprobe zfs
+>   > modprobe: ERROR: could not insert 'zfs': Key was rejected by service
+>
+> This requires installing the MOK (machine owners key) before applying this
+> role.
 
-[Additional documentation](http://r-pufky.github.io/r-pufky/docs/service/zfs).
+### Feature Flags
+Tasks are gated by feature flags and executed in the following order.
 
-The role provides a built in user, however, a consumer provided user is highly
-recommended.
+  Step | Flag                          | Notes
+ ------|-------------------------------|-------
+  1    | zfs_flg_kernel_module_restart | Restart machine if modprobe fails.
+  2    | zfs_flg_force_pools           | Force import pools.
+  3    | zfs_flg_snapshot              | Enable snapshot sync.
+  4    | zfs_flg_pools_share_restart   | Export NFS/SMB shares.
 
-Manage a ZFS pool, enabling monthly scrubs, and weekly dataset snapshots with
-automatic backup of those snapshots to a remote server via `zincrsend` over
-`SSH`.
-
-All options must be explicitly set.
+### Example Playbooks
 
 ``` yaml
-- name: 'Manage ZFS pools'
+# Automatic backup of snapshots to a remote server via zincrsend over SSH.
+# See snapshot defaults.
+- name: 'Manage ZFS pools, enable monthly scrub, weekly dataset snapshots.'
   ansible.builtin.include_role:
     name: 'r_pufky.deb.zfs'
   vars:
-    zfs_pools:
+    zfs_flg_snapshot: true
+    zfs_srv_pools:
       - name: 'tank'
         scrub: 'monthly'
         datasets:
@@ -54,44 +68,57 @@ All options must be explicitly set.
                 value: 'off'
               - option: 'compression'
                 value: 'lz4'
-    zfs_snapshot_enable: true
-    zfs_snapshot_schedule: 'weekly'
-    zfs_snapshot_retention: 3
-    zfs_snapshot_datasets:
+    zfs_cfg_snapshot_schedule: 'weekly'
+    zfs_cfg_snapshot_retention: 3
+    zfs_cfg_snapshot_datasets:
       - 'tank/documents'
       - 'tank/home'
       - 'tank/backup'
       - 'tank/software'
-    zfs_snapshot_remote_pool: 'backup_tank'
-    zfs_snapshot_remote_server: 'example.com'
-    zfs_snapshot_remote_ssh_options:
+    zfs_cfg_snapshot_remote_pool: 'backup_tank'
+    zfs_cfg_snapshot_remote_server: 'example.com'
+    zfs_cfg_snapshot_remote_ssh_options:
       - '-i'
       - '/root/backup/backup.key'
 ```
 
 ## Development
-Configure [environment](https://r-pufky.github.io/ansible_collection_docs/ansible/environment)
+Configure [environment][a].
 
-Run all unit tests:
 ``` bash
+# Run all tests.
 molecule test --all
 ```
 
-### Releases
-Major release versions track Debian release versions:
+### [Releases][b]
 
-* **[13.x.x](https://github.com/r-pufky/ansible_zfs)**: 13 Trixie.
-* **[12.x.x](https://github.com/r-pufky/ansible_zfs/tree/12.x)**: 12 Bookworm.
+  Release | Debian | Ansible | Notes
+ ---------|--------|---------|-------
+  3.x.x   | 13     | 2.20    | Ansible 2.20, feature flags, and semantic versioning.
+  2.x.x   | 13     | 2.18    | Migrate to Debian Trixie.
+  1.x.x   | 12     | 2.18    | Use standardized libraries.
+  0.x.x   | 12     | 2.18    | Migration from private repository.
 
-### Issues
+## Issues
 Create a bug and provide as much information as possible.
 
 Associate pull requests with a submitted bug.
 
 ## License
-[AGPL-3.0 License](https://www.tldrlegal.com/license/gnu-affero-general-public-license-v3-agpl-3-0)
- [(direct link)](https://github.com/r-pufky/ansible_zfs/blob/main/LICENSE)
+[AGPL-3.0 License][c] | [direct link][f]
 
 ## Author Information
-PGP Fingerprint: [466EEC2B67516C7117C85CE3A0BC35D16698BAB9](https://keys.openpgp.org/vks/v1/by-fingerprint/466EEC2B67516C7117C85CE3A0BC35D16698BAB9)
-| [github gist](https://gist.github.com/r-pufky/a8df36977c55b5bb20829267c4c49d22)
+PGP: [466EEC2B67516C7117C85CE3A0BC35D16698BAB9][d] | [github gist][e]
+
+
+[a]: https://r-pufky.github.io/ansible_docs
+[b]: https://semver.org/spec/v2.0.0
+[c]: https://www.tldrlegal.com/license/gnu-affero-general-public-license-v3-agpl-3-0
+[d]: https://keys.openpgp.org/vks/v1/by-fingerprint/466EEC2B67516C7117C85CE3A0BC35D16698BAB9
+[e]: https://gist.github.com/r-pufky/a8df36977c55b5bb20829267c4c49d22
+
+[f]: https://github.com/r-pufky/ansible_zfs/blob/main/LICENSE
+[g]: https://github.com/r-pufky/ansible_collection_deb
+[h]: http://r-pufky.github.io/docs/service/zfs
+[i]: https://github.com/r-pufky/ansible_zfs/blob/main/meta/main.yml
+[j]: https://github.com/r-pufky/ansible_zfs/tree/main/defaults/main/main.yml

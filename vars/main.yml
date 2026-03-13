@@ -3,10 +3,17 @@
 # ZFS Role Options
 ###############################################################################
 
-# Last time ZFS options were validated against a default configuration.
-zfs_role_validate_date: '2025-08-22'
-zfs_role_validate_release: 'trixie'
+zfs___release: "{{ {} | r_pufky.data.v3(
 
+    _date='2026-03-12',
+    _debian='trixie',
+  ) }}"
+
+zfs___app: "{{ {} | r_pufky.data.v3(
+
+    _snapshot_file='/etc/zfs_snapshot/zfs_incremental_snapshot',
+    _snapshot_unit='/etc/systemd/system/zfs_snapshot.',
+  ) }}"
 ###############################################################################
 # APT Packages
 ###############################################################################
@@ -16,25 +23,25 @@ zfs_role_validate_release: 'trixie'
 # Reference:
 # * https://openzfs.github.io/openzfs-docs/Getting%20Started/Debian/index.html
 
-zfs_role_packages:
+zfs___packages:
   - 'zfsutils-linux'
   - 'zfs-dkms'
   - 'dpkg-dev'
   - 'linux-headers-amd64'
   - 'linux-image-amd64'
 
-zfs_role_nfs_packages:
+zfs___nfs_packages:
   - 'nfs-kernel-server'
 
 ###############################################################################
 # Default ZFS User/Group
 ###############################################################################
 
-zfs_role_group:
+zfs___group:
   name: 'zfs_snapshot'
   gid: 901
 
-zfs_role_user:
+zfs___user:
   name: 'zfs_snapshot'
   group: 'zfs_snapshot'
   groups:
@@ -48,11 +55,3 @@ zfs_role_user:
   update_password: 'always'
   expires: -1
   system: true
-  extensions:
-    sudoers:
-      name: 'zfs_snapshot'
-      user: 'zfs_snapshot'
-      host: 'ALL'
-      runas: 'ALL'
-      nopassword: true
-      commands: '/usr/sbin/zfs'

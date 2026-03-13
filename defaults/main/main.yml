@@ -1,19 +1,70 @@
 ---
 # yamllint disable rule:line-length
 ###############################################################################
-# ZFS Pool and Snapshot Management
+# Feature Flags
 ###############################################################################
-# ZFS kernel module will be automatically loaded and the specified pools
-# mounted.
+
+# 1. Enable machine restart if kernel module cannot be loaded?
 #
-# Secure boot requires signed modules; if the MOK is not loaded and secure boot
-# is enabled, the module will fail to load with the message:
+# Old base OS installs may be running kernels which are no longer included in
+# the linux-{headers,image} metapackages. Instead of failing modprobe, attempt
+# to reboot the machine with the new kernel.
 #
-#   /sbin/modprobe zfs
-#   > modprobe: ERROR: could not insert 'zfs': Key was rejected by service
+# Default: True.
+zfs_flg_kernel_module_restart: true
+
+# Force import pools?
 #
-# This requires installing the MOK (machine owners key) before applying this
-# role. See r_pufky.deb.secure_boot.
+# Pools imported without being exported first will block standard imports to
+# protect potential data corruption.
+#
+# Default: False.
+zfs_flg_force_pools: false
+
+# 2. Enable snapshot sync?
+#
+# Create snapshots and sync to zfs_cfg_snapshot_remote_server. See
+# snapshot.yml.
+#
+# Default: False.
+zfs_flg_snapshot: false
+
+# 3. Export NFS/SMB shares on completion?
+#
+# Default: False.
+zfs_flg_pools_share_restart: false
+
+###############################################################################
+# Service
+###############################################################################
+
+# User that ZFS snapshots will run under.
+#
+# 'zfs_snapshot' will automatically be created using vars/main.yml if
+# zfs_flg_snapshot=true and user does not exist. All other accounts are checked
+# for existence. These should be highly restricted accounts as operations with
+# them can be DATA DESTRUCTIVE.
+#
+# User will be granted the following privileges:
+# * ZFS: mount, destroy on zfs_cfg_snapshot_datasets. Allows pruning snapshots
+#   after dataset sync backup is confirmed.
+# * SUDO: ALL=(ALL)NOPASSWD: /usr/sbin/zfs. Allows zfs commands required for
+#   dataset manipulation to be run as root without additional authentication.
+#
+# NOTE: A user created ZFS account is preferred as key-based SSH authentication
+# is used for off-machine backups.
+#
+# Default: 'zfs_snapshot'.
+zfs_srv_user: 'zfs_snapshot'
+
+# Group that ZFS snapshots will run under.
+#
+# 'zfs_snapshot' will automatically be created using vars/main.yml  if
+# zfs_flg_snapshot=true and user does not exist. All other accounts are checked
+# for existence.
+#
+# Default: 'paperless'.
+zfs_srv_group: 'zfs_snapshot'
 
 # List of dict ZFS pools to manage.
 #
@@ -29,7 +80,7 @@
 #
 # nfs-kernel-server will automatically be installed if 'sharenfs' is defined.
 #
-# zfs_pools:
+# zfs_srv_pools:
 #     list of dict - ZFS pool settings.
 #   name: str - ZFS pool name.
 #   scrub: str - ZFS scrub schedule; uses built-in systemd ZFS scrub timers.
@@ -44,7 +95,7 @@
 #         - option: str - ZFS dataset option.
 #           value: str - ZFS dataset option value.
 #
-# zfs_pools:
+# zfs_srv_pools:
 #   - name: 'tank'
 #     scrub: 'monthly'
 #     datasets:
@@ -74,26 +125,95 @@
 # * https://openzfs.github.io/openzfs-docs
 # * https://manpages.debian.org/bookworm/zfsutils-linux/zfsprops.7.en.html
 # * https://forums.freebsd.org/threads/zfs-and-nfs-to-multiple-nic-netwokrs.35550/
-zfs_pools: []
+zfs_srv_pools: []
 
-# Enable machine restart if kernel module cannot be loaded?
-#
-# Old base OS installs may be running kernels which are no longer included in
-# the linux-{headers,image} metapackages. Instead of failing modprobe, attempt
-# to reboot the machine with the new kernel.
-#
-# Default: True.
-zfs_kernel_module_restart_enable: true
+###############################################################################
+# Snapshots
+###############################################################################
+# Incremental snapshots will be created on the given schedule and snapshots
+# uploaded to specified remote servers.
 
-# Force import pools?
+# Set snapshot sync schedule.
 #
-# Pools imported without being exported first will block standard imports to
-# protect potential data corruption.
+# Uses systemd TIME specification.
 #
-# Default: False.
-zfs_pools_force: false
+# Default: 'weekly'
+#
+# Reference:
+# * https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html
+zfs_cfg_snapshot_schedule: 'weekly'
 
-# Export NFS/SMB shares on completion?
+# List of fully qualified ZFS datasets to take incremental snapshots.
 #
-# Default: False.
-zfs_pools_restart_share_enable: false
+# Datasets are specified with {POOL}/{DATASET}. Only root datasets need to be
+# specified if zfs_cfg_snapshot_options=['-R', '-w'] to sync.
+#
+# zfs_cfg_snapshot_datasets:
+#   - 'tank/archive'
+#   - 'tank/media'
+#
+# Default: [].
+zfs_cfg_snapshot_datasets: []
+
+# Snapshot prefix. Default: 'zincrsend_'.
+zfs_cfg_snapshot_prefix: 'zincrsend_'
+
+# Keep number of snapshots after sync.
+#
+# There must be two snapshots existing for incremental send to work.
+#
+# Special Case:
+#   0: disables
+#
+# Default: 2.
+zfs_cfg_snapshot_retention: 2
+
+# Additional ZFS snapshot options.
+#
+# Default: ['-r'] (recursive).
+#
+# Reference:
+# * https://openzfs.github.io/openzfs-docs/man/8/zfs-snapshot.8.html
+zfs_cfg_snapshot_options:
+  - '-r'
+
+# Additional ZFS send options.
+#
+# Default: ['-R', '-w'] (replicate, raw).
+#
+# Reference:
+# * https://openzfs.github.io/openzfs-docs/man/8/zfs-send.8.html
+zfs_cfg_snapshot_send_options:
+  - '-R'
+  - '-w'
+
+# ZFS Remote Server Sync
+###############################################################################
+# ZFS snapshots are sent over SSH to the remote server ZFS pool.
+
+# User with SSH access.
+#
+# User requires the following permissions:
+# * sudo (for elevating privileges to root to write to ZFS pool) **OR**
+# * 'receive' (zfs allow -u {USER} receive) privileges on remote ZFS pool
+#
+# Default: '{{ zfs_srv_user }}'.
+#
+# Reference:
+# * https://openzfs.github.io/openzfs-docs/man/master/8/zfs-allow.8.html
+zfs_cfg_snapshot_remote_user: '{{ zfs_srv_user }}'
+
+# Remote ZFS pool to sync snapshots to. Default: ''.
+zfs_cfg_snapshot_remote_pool: ''
+
+# Server address. Default: ''.
+zfs_cfg_snapshot_remote_server: ''
+
+# Server Port. Default: 22.
+zfs_cfg_snapshot_remote_port: 22
+
+# Prefix remote commands. Default: 'sudo'.
+zfs_cfg_snapshot_remote_command_prefix: 'sudo'
+
+# Addition SSH options. Default: [].
+zfs_cfg_snapshot_remote_ssh_options: []

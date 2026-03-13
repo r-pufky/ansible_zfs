@@ -1,11 +1,24 @@
 ---
 - name: 'Converge'
   hosts: 'all'
-  gather_facts: true  # ansible_kernel
+  gather_facts: true  # ansible_facts['kernel']
   become: true
   tasks:
-    - name: 'Converge | apply r_pufky.deb.zfs'
+    - name: 'Converge | role | r_pufky.deb.zfs'
       ansible.builtin.include_role:
         name: 'r_pufky.deb.zfs'
       vars:
-        zfs_pools: [{name: 'test', scrub: 'monthly', datasets: []}]
+        zfs_srv_pools:
+          - name: 'test'
+            scrub: 'monthly'
+            datasets:
+              - name: 'data'
+                properties:
+                  - option: 'atime'
+                    value: 'off'
+                  - option: 'xattr'
+                    value: 'sa'
+                  - option: 'dnodesize'
+                    value: 'auto'
+                  - option: 'sharenfs'
+                    value: 'rw=10.10.10.0/24,sec=sys,mountpoint'

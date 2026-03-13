@@ -4,40 +4,41 @@
 ###############################################################################
 #
 # Args:
-#   pool: dict - ZFS pool settings to import (item from zfs_pools).
+#   pool: dict - ZFS pool settings to import (from zfs_srv_pools).
 
-- name: 'Import ZFS pool | query pool state'
+- name: 'Import ZFS pool | cmd | query pool state'
   ansible.builtin.shell: >
     set -o pipefail &&
     /usr/sbin/zpool list -H | grep "{{ pool.name }}"
   args:
     executable: '/bin/bash'
-  register: _zfs_query
+  register: zfs__query
   changed_when: false
-  failed_when: _zfs_query.rc > 1
+  failed_when: zfs__query.rc > 1
 
-- name: 'Import ZFS pool | import {{ pool.name }}'
-  when: _zfs_query.rc == 1
+- name: 'Import ZFS pool | cmd | import {{ pool.name }}'
+  when: zfs__query.rc == 1
   ansible.builtin.shell: >
      /usr/sbin/zpool import
      "{{ pool.name }}"
-     {{ "-f" if zfs_pools_force else "" }}
+     {{ "-f" if zfs_flg_force_pools else "" }}
   args:
     executable: '/bin/bash'
-  register: _zfs_import
-  changed_when: _zfs_import.rc == 0
+  register: zfs__import
+  changed_when: zfs__import.rc == 0
 
-- name: 'Import ZFS pool | enable scheduled scrubbing'
+- name: '{{  "Import ZFS pool | systemd | enable scrubbing on " ~ pool.name }}'
   when: pool.scrub | lower != ''
-  ansible.builtin.systemd_service:
-    name: 'zfs-scrub-{{ pool.scrub | lower }}@{{ pool.name }}.timer'
+  ansible.builtin.systemd:
+    name:
+      '{{ "zfs-scrub-" ~ pool.scrub | lower ~ "@" ~ pool.name ~ ".timer" }}'
     enabled: true
     state: 'started'
 
-- name: 'Import ZFS pool | disable scrubbing'
+- name: '{{ "Import ZFS pool | systemd | disable scrubbing on " ~ pool.name }}'
   when: pool.scrub | lower == ''
-  ansible.builtin.systemd_service:
-    name: 'zfs-scrub-{{ item }}@{{ pool.name }}.timer'
+  ansible.builtin.systemd:
+    name: '{{ "zfs-scrub-" ~ item ~ "@" ~ pool.name ~ ".timer" }}'
     enabled: false
     state: 'stopped'
   loop:

@@ -4,7 +4,32 @@
 ###############################################################################
 # Sanity check ZFS pool settings before applying them.
 
-- name: 'Prep | assert pool scrub requirements'
+- name: 'Prep | fact | record start time'
+  ansible.builtin.set_fact:
+    zfs__srv: "{{ {} | r_pufky.data.v3(
+
+        _user=zfs_srv_user,
+        _group=zfs_srv_group,
+        _pools=zfs_srv_pools,
+      ) }}"
+    zfs__cfg: "{{ {} | r_pufky.data.v3(
+
+        _start=now(utc=True, fmt='%Y-%m-%dT%H%M%S'),
+        _snapshot_schedule=zfs_cfg_snapshot_schedule,
+        _snapshot_datasets=zfs_cfg_snapshot_datasets,
+        _snapshot_prefix=zfs_cfg_snapshot_prefix,
+        _snapshot_retention=zfs_cfg_snapshot_retention,
+        _snapshot_options=zfs_cfg_snapshot_options,
+        _snapshot_send_options=zfs_cfg_snapshot_send_options,
+        _snapshot_remote_user=zfs_cfg_snapshot_remote_user,
+        _snapshot_remote_pool=zfs_cfg_snapshot_remote_pool,
+        _snapshot_remote_server=zfs_cfg_snapshot_remote_server,
+        _snapshot_remote_port=zfs_cfg_snapshot_remote_port,
+        _snapshot_remote_command_prefix=zfs_cfg_snapshot_remote_command_prefix,
+        _snapshot_remote_ssh_options=zfs_cfg_snapshot_remote_ssh_options,
+      ) }}"
+
+- name: 'Prep | assert | pool scrub requirements'
   ansible.builtin.assert:
     quiet: true
     that:
@@ -12,61 +37,123 @@
         item.scrub is search("weekly") or
         item.scrub is search("monthly")
     fail_msg: |
-      ╭───────────────────────────────────────────────────────────────────╮
-      │                                                                   │
-      │              zfs_pools must always be fully defined.              │
-      │                                                                   │
-      ├───────────────────────────────────────────────────────────────────╯
-      │ {{ item.name }}.scrub is missing or incorrect.
-  loop: '{{ zfs_pools }}'
+
+      ✘ zfs_srv_pools must always be fully defined.
+
+      {{ item.name }}.scrub is missing or incorrect.
+
+  loop: '{{ zfs_srv_pools }}'
   loop_control:
     label: '{{ item.name | default("") }}'
 
-- name: 'Prep | assert pool dataset requirements'
+- name: 'Prep | assert | pool dataset requirements'
   ansible.builtin.assert:
     quiet: true
     that:
       - '"datasets" in item'
     fail_msg: |
-      ╭───────────────────────────────────────────────────────────────────╮
-      │                                                                   │
-      │              zfs_pools must always be fully defined.              │
-      │                                                                   │
-      ├───────────────────────────────────────────────────────────────────╯
-      │ {{ item.name }}.datasets is missing or incorrect.
-  loop: '{{ zfs_pools }}'
+
+      ✘ zfs_srv_pools must always be fully defined.
+
+      {{ item.name }}.datasets is missing or incorrect.
+
+  loop: '{{ zfs_srv_pools }}'
   loop_control:
     label: '{{ item.name | default("") }}'
 
-- name: 'Prep | assert ZFS snapshot requirements'
-  when: zfs_snapshot_enable
+- name: 'Prep | assert | ZFS snapshot requirements'
+  when: zfs_flg_snapshot
   ansible.builtin.assert:
     quiet: true
     that:
-      - zfs_snapshot_remote_user | length > 0
-      - zfs_snapshot_remote_pool | length > 0
-      - zfs_snapshot_remote_server | length > 0
-      - zfs_snapshot_remote_port > 0
+      - zfs_cfg_snapshot_remote_user | length > 0
+      - zfs_cfg_snapshot_remote_pool | length > 0
+      - zfs_cfg_snapshot_remote_server | length > 0
+      - zfs_cfg_snapshot_remote_port > 0
     fail_msg: |
-      ╭───────────────────────────────────────────────────────────────────╮
-      │                                                                   │
-      │           ZFS snapshots require minimum configuration.            │
-      │                                                                   │
-      ├───────────────────────────────────────────────────────────────────╯
-      │ zfs_snapshot_remote_user: {{ zfs_snapshot_remote_user }}
-      │ zfs_snapshot_remote_pool: {{ zfs_snapshot_remote_pool }}
-      │ zfs_snapshot_remote_server: {{ zfs_snapshot_remote_server }}
-      │ zfs_snapshot_remote_port: {{ zfs_snapshot_remote_port }}
 
-- name: 'Prep | check ZFS NFS export settings'
+      ✘ ZFS snapshots require minimum configuration.
+
+      zfs_cfg_snapshot_remote_user: {{ zfs_cfg_snapshot_remote_user }}
+      zfs_cfg_snapshot_remote_pool: {{ zfs_cfg_snapshot_remote_pool }}
+      zfs_cfg_snapshot_remote_server: {{ zfs_cfg_snapshot_remote_server }}
+      zfs_cfg_snapshot_remote_port: {{ zfs_cfg_snapshot_remote_port }}
+
+- name: 'Prep | fact | check ZFS NFS export settings'
   ansible.builtin.set_fact:
-    _zfs_nfs_required: '{{
-        true
-        if
-          zfs_pools | map(attribute="datasets") |
-          flatten | map(attribute="properties") |
-          flatten | selectattr("option", "equalto", "sharenfs") |
-          list | length > 0
-        else
-        false
-      }}'
+    zfs__cfg: '{{ zfs__cfg | r_pufky.data.v3(
+
+        _nfs_required=(
+          true
+          if
+            zfs_srv_pools | map(attribute="datasets") |
+            flatten | map(attribute="properties") |
+            flatten | selectattr("option", "equalto", "sharenfs") |
+            list | length > 0
+          else
+          false
+        ),
+      ) }}'
+
+- name: 'Prep | account'
+  when: zfs_flg_snapshot
+  block:
+    - name: '{{ "Prep | account | query user " ~ zfs__srv._user }}'
+      ansible.builtin.command: '{{ "id " ~ zfs__srv._user }}'
+      failed_when: false
+      register: zfs__user_check
+      changed_when: zfs__user_check.rc > 0
+
+    - name: '{{ "Prep | account | query group " ~ zfs__srv._group }}'
+      ansible.builtin.command: '{{ "groups " ~ zfs__srv._group }}'
+      failed_when: false
+      register: zfs__group_check
+      changed_when: zfs__group_check.rc > 0
+
+    - name: '{{ "Prep | account | create group " ~ zfs__srv._group }}'
+      when: zfs__group_check.rc != 0
+      ansible.builtin.group:
+        gid: '{{ zfs___group.gid }}'
+        name: '{{ zfs___group.name }}'
+        state: 'present'
+
+    - name: '{{ "Prep | account | create user " ~ zfs__srv._user }}'
+      when: zfs__user_check.rc != 0
+      ansible.builtin.user:
+        name: '{{ zfs___user.name }}'
+        group: '{{ zfs___user.group }}'
+        uid: '{{ zfs___user.uid }}'
+        shell: '{{ zfs___user.shell }}'
+        home: '{{ zfs___user.home }}'
+        create_home: '{{ zfs___user.create_home }}'
+        password: '{{ zfs___user.password }}'
+        password_lock: '{{ zfs___user.password_lock }}'
+        update_password: '{{ zfs___user.update_password }}'
+        expires: '{{ zfs___user.expires }}'
+        system: '{{ zfs___user.system }}'
+
+    # Pre-existing users may have a different UID/GID/Home.
+    - name: '{{ "Prep | account | enumerate " ~ zfs__srv._user }}'
+      ansible.builtin.user:
+        name: '{{ zfs__srv._user }}'
+      check_mode: true
+      changed_when: false
+      register: zfs__query
+
+    - name: 'Prep | fact | parse service UID/GID'
+      ansible.builtin.set_fact:
+        zfs__cfg: "{{ zfs__cfg | r_pufky.data.v3(
+
+            _uid=zfs__query.uid,
+            _gid=zfs__query.group,
+            _home=zfs__query.home,
+          ) }}"
+
+- name: 'Prep | packages'
+  ansible.builtin.include_role:
+    name: 'r_pufky.deb.apt'
+  vars:
+    apt_packages:
+      - '{{ zfs___packages }}'
+      - '{{ zfs___nfs_packages if zfs__cfg._nfs_required else [] }}'
+    apt_srv_package_update_cache: true

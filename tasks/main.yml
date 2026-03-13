@@ -1,32 +1,13 @@
 ---
 - name: 'Prep'
   ansible.builtin.import_tasks: 'prep.yml'
-
-- name: 'Install packages'
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.apt'
-  vars:
-    apt_packages:
-      - '{{ zfs_role_packages }}'
-      - '{{ zfs_role_nfs_packages if _zfs_nfs_required else [] }}'
-    apt_package_update_cache: true
-
-- name: 'Manage users'
-  when: zfs_create_user
-  ansible.builtin.include_role:
-    name: 'r_pufky.deb.users'
-    tasks_from: 'role_account_add.yml'
-  vars:
-    users_role_group: '{{ zfs_role_group }}'
-    users_role_user: '{{ zfs_role_user }}'
-
 - name: 'Import'
   ansible.builtin.import_tasks: 'import.yml'
-- name: 'Incremental snapshots'
-  ansible.builtin.import_tasks: 'incremental_snapshots.yml'
+- name: 'Snapshots'
+  ansible.builtin.import_tasks: 'snapshots.yml'
 
 - name: 'Restart ZFS shares'
-  when: zfs_pools_restart_share_enable
-  ansible.builtin.service:
+  when: zfs_flg_pools_share_restart
+  ansible.builtin.systemd:
     name: 'zfs-share'
     state: 'restarted'

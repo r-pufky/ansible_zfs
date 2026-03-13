@@ -17,27 +17,27 @@
 # Recursive datasets to send. (-R) will remove snapshots that have been deleted
 # locally on the remote end as well. Dataset does *NOT* need to have children.
 datasets=(
-{% for dataset in zfs_snapshot_datasets %}
+{% for dataset in zfs__cfg._snapshot_datasets %}
   {{ dataset }}
 {% endfor %}
 )
 
 # Remote server connection settings.
-remote_server='{{ zfs_snapshot_remote_server }}'
-remote_user='{{ zfs_snapshot_remote_user }}'
-remote_port='{{ zfs_snapshot_remote_port }}'
-remote_pool='{{ zfs_snapshot_remote_pool }}'
-remote_command_prefix='{{ zfs_snapshot_remote_command_prefix }}'
-remote_ssh_opts=({{ zfs_snapshot_remote_ssh_options | join(" ") }})
+remote_server='{{ zfs__cfg._snapshot_remote_server }}'
+remote_user='{{ zfs__cfg._snapshot_remote_user }}'
+remote_port='{{ zfs__cfg._snapshot_remote_port }}'
+remote_pool='{{ zfs__cfg._snapshot_remote_pool }}'
+remote_command_prefix='{{ zfs__cfg._snapshot_remote_command_prefix }}'
+remote_ssh_opts=({{ zfs__cfg._snapshot_remote_ssh_options | join(" ") }})
 
 # prefix to use for snapshots created by this script
-snapshot_prefix='{{ zfs_snapshot_prefix }}'
+snapshot_prefix='{{ zfs__cfg._snapshot_prefix }}'
 # Number of snapshots to retain after successful sync. 0 disables.
-snapshot_retention={{ zfs_snapshot_retention }}
+snapshot_retention={{ zfs__cfg._snapshot_retention }}
 # snapshot options: https://openzfs.github.io/openzfs-docs/man/8/zfs-snapshot.8.html
-snapshot_opts=({{ zfs_snapshot_options | join(" ") }})
+snapshot_opts=({{ zfs__cfg._snapshot_options | join(" ") }})
 # send options: https://openzfs.github.io/openzfs-docs/man/8/zfs-send.8.html
-send_opts=({{ zfs_snapshot_send_options | join(" ") }})
+send_opts=({{ zfs__cfg._snapshot_send_options | join(" ") }})
 ################################################################################
 
 SSH() {
@@ -126,7 +126,7 @@ process() {
       /usr/sbin/zfs destroy ${snap}
     done
   else
-    echo "zfs snapshot rentention management disabled"
+    echo "zfs snapshot retention management disabled"
   fi
 }
 

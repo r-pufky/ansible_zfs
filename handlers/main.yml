@@ -1,0 +1,27 @@
+---
+###############################################################################
+# ZFS Handlers
+###############################################################################
+
+- name: 'Handlers | systemd'
+  listen:
+    - 'Handlers | systemd zfs_snapshot.timer'
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: 'Handlers | zfs_snapshot.timer'
+  listen:
+    - 'Handlers | systemd zfs_snapshot.timer'
+  ansible.builtin.systemd:
+    name: '{{ item }}'
+    enabled: true
+  loop:
+    - 'zfs_snapshot.timer'
+    - 'zfs_snapshot.service'
+
+- name: 'Handlers | zfs_snapshot.timer (tick)'
+  listen:
+    - 'Handlers | systemd zfs_snapshot.timer'
+  ansible.builtin.systemd:
+    name: 'zfs_snapshot.timer'
+    state: 'started'

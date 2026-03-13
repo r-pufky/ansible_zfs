@@ -6,6 +6,10 @@
 # script deployed and scheduled job is started. VM required as ZFS loads kernel
 # modules.
 #
+# Advise using --destroy=never:
+# This test is very heavy as file-based block devices are created on the VM to
+# simulate physical disks for verifying ZFS commands.
+#
 # Tests:
 # * zpool atime disabled.
 # * zpool xattr is sa.
@@ -17,14 +21,13 @@ dependency:
 driver:
   name: 'vagrant'
   provider:
-    name: 'virtualbox'
-    config_options:
-      ssh.keep_alive: true
-      ssh.remote_user: 'root'
-    options:
-      append_platform_to_hostname: false
+    name: 'libvirt'
+    type: 'libvirt'
 provisioner:
   name: 'ansible'
+  connection_options:
+    ansible_ssh_user: 'vagrant'
+    ansible_become: true
   config_options:
     defaults:
       interpreter_python: 'auto_silent'
@@ -33,39 +36,30 @@ provisioner:
     group_vars:
       all:
         zfs_create_user: true
-        zfs_snapshot_enable: true
-        zfs_snapshot_remote_user: 'zfs_snapshot'
-        zfs_snapshot_remote_pool: 'test_pool'
-        zfs_snapshot_remote_server: 'example.com'
-        zfs_snapshot_remote_ssh_options:
+        zfs_flg_snapshot: true
+        zfs_cfg_snapshot_remote_user: 'zfs_snapshot'
+        zfs_cfg_snapshot_remote_pool: 'test_pool'
+        zfs_cfg_snapshot_remote_server: 'example.com'
+        zfs_cfg_snapshot_remote_ssh_options:
           - '-i /root/backup/backup.key'
-        zfs_pools_restart_share_enable: true
+        zfs_flg_pools_share_restart: true
 platforms:
-  - name: 'zfs-debian-13-vm-default'
-    box: 'inception-of-things/debian-trixie'
+  - name: 'zfs-default'
+    box: 'debian/trixie64'
     memory: 4096
     cpus: 2
     interfaces:
-      - network_name: private_network  # network_name required.
+      - network_name: 'private_network'
         auto_config: true
         type: 'dhcp'
 verifier:
   name: 'ansible'
-lint: |
-  set -e
-  yamllint .
-  ansible-lint .
 scenario:
   test_sequence:
-    # - 'dependency'
-    # - 'cleanup'
     - 'destroy'
     - 'syntax'
     - 'create'
     - 'prepare'
     - 'converge'
-    # - 'idempotence'  # services/timers toggled in prepare.
-    # - 'side_effect'
     - 'verify'
-    # - 'cleanup'
     - 'destroy'

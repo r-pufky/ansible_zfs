@@ -1,0 +1,14 @@
+[Unit]
+Description=Run ZFS snapshots and upload datasets.
+Requires=network.target zfs.target zfs_snapshot.timer
+After=network.target zfs.target
+
+[Service]
+Type=simple
+ExecStart={{ zfs___app._snapshot_file }}
+WorkingDirectory={{ zfs__cfg._home }}
+User={{ zfs__srv._user }}
+Group={{ zfs__srv._group }}
+
+[Install]
+WantedBy=multi-user.target

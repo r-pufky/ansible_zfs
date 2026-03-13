@@ -1,0 +1,9 @@
+[Unit]
+Description=Trigger timer for ZFS snapshots.
+
+[Timer]
+OnCalendar={{ zfs__cfg._snapshot_schedule }}
+Unit=zfs_snapshot.service
+
+[Install]
+WantedBy=timers.target

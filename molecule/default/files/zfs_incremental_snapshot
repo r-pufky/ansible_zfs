@@ -123,7 +123,7 @@ process() {
       /usr/sbin/zfs destroy ${snap}
     done
   else
-    echo "zfs snapshot rentention management disabled"
+    echo "zfs snapshot retention management disabled"
   fi
 }
 

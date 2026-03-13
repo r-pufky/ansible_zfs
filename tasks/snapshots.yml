@@ -1,0 +1,87 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Setup ZFS incremental snapshots
+###############################################################################
+# Only giving permission to datasets (NOT root pool) will allow snapshot
+# deletion without deleting pool.
+#
+# Defer snapshot timer start until end of play via Handlers.
+#
+# Reference:
+# * https://zfs-discuss.opensolaris.narkive.com/GuN3T2n9/zfs-allow-destroy-and-rmdir-to-remove-snapshot
+# yamllint enable rule:line-length
+
+- name: 'Snapshots | enable'
+  when: zfs_flg_snapshot
+  block:
+    - name: '{{
+          "Snapshots | cmd | grant ZFS mount,destroy to " ~ zfs__srv._user
+        }}'
+      ansible.builtin.command:
+        argv:
+          - '/usr/sbin/zfs'
+          - 'allow'
+          - '-d'
+          - '{{ zfs__srv._user }}'
+          - 'mount,destroy'
+          - '{{ item }}'
+      register: zfs__set
+      changed_when: zfs__set.rc == 0
+      failed_when: zfs__set.rc > 0
+      loop: '{{ zfs_cfg_snapshot_datasets }}'
+
+    - name: '{{ "Snapshots | sudoers | add " ~ zfs__srv._user }}'
+      community.general.sudoers:
+        name: '{{ zfs__srv._user }}'
+        user: '{{ zfs__srv._user }}'
+        host: 'ALL'
+        runas: 'ALL'
+        nopassword: true
+        commands: '/usr/sbin/zfs'
+        state: 'present'
+        validation: 'detect'
+
+    - name: '{{ "Snapshots | filesystem | set " ~ zfs___app._snapshot_file }}'
+      notify: 'Handlers | systemd zfs_snapshot.timer'
+      ansible.builtin.template:
+        src: 'zfs_incremental_snapshot.j2'
+        dest: '{{ zfs___app._snapshot_file }}'
+        owner: '{{ zfs__srv._user }}'
+        group: '{{ zfs__srv._group }}'
+        mode: '0755'
+        force: true
+
+    - name: 'Snapshots | systemd | update services'
+      notify: 'Handlers | systemd zfs_snapshot.timer'
+      ansible.builtin.template:
+        src: '{{ "systemd/" ~ item ~ ".j2" }}'
+        dest: '{{ "/etc/systemd/system/" ~ item }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      loop:
+        - 'zfs_snapshot.service'
+        - 'zfs_snapshot.timer'
+
+- name: 'Snapshots | disable'
+  when: not zfs_flg_snapshot
+  notify: 'Handlers | systemd'
+  block:
+    - name: 'Snapshots | systemd | stop zfs_snapshot'
+      ansible.builtin.systemd:
+        name: '{{ item }}'
+        state: 'stopped'
+      failed_when: false
+      loop:
+        - 'zfs_snapshot.service'
+        - 'zfs_snapshot.timer'
+
+    - name: 'Snapshots | filesystem | remove zfs_snapshot'
+      ansible.builtin.file:
+        path: '{{ item }}'
+        state: 'absent'
+      loop:
+        - '{{ zfs___app._snapshot_unit ~ "service" }}'
+        - '{{ zfs___app._snapshot_unit ~ "timer" }}'
+        - '{{ zfs___app._snapshot_file }}'
