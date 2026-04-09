@@ -29,7 +29,7 @@
         name: 'zfs'
         state: 'present'
   rescue:
-    - name: 'Import | modprobe | FAILED ✘'
+    - name: 'Import ⛑ | modprobe | FAILED ✘'
       ansible.builtin.debug:
         msg: |
 
@@ -39,14 +39,14 @@
           linux-{headers,image} meta-package. Rebooting ensures the latest
           kernel is running on the system.
 
-    - name: 'Import | modprobe | REBOOT (~2 minutes) 🗘'
+    - name: 'Import ⛑ | modprobe | REBOOT (~2 minutes) 🗘'
       when: zfs_flg_kernel_module_restart
       ansible.builtin.reboot:
         msg: |
 
           Machine is rebooting (~2 minutes).
 
-    - name: 'Import | modprobe | zfs'
+    - name: 'Import ⛑ | modprobe | zfs'
       community.general.modprobe:
         name: 'zfs'
         state: 'present'

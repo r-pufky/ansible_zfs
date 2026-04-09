@@ -11,7 +11,7 @@ zfs___release: "{{ {} | r_pufky.data.v3(
 
 zfs___app: "{{ {} | r_pufky.data.v3(
 
-    _snapshot_file='/etc/zfs_snapshot/zfs_incremental_snapshot',
+    _snapshot='/etc/zfs_snapshot/zfs_incremental_snapshot',
     _snapshot_unit='/etc/systemd/system/zfs_snapshot.',
   ) }}"
 ###############################################################################

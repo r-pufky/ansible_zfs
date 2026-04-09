@@ -42,11 +42,11 @@
         state: 'present'
         validation: 'detect'
 
-    - name: '{{ "Snapshots | filesystem | set " ~ zfs___app._snapshot_file }}'
+    - name: '{{ "Snapshots | filesystem | set " ~ zfs___app._snapshot }}'
       notify: 'Handlers | systemd zfs_snapshot.timer'
       ansible.builtin.template:
         src: 'zfs_incremental_snapshot.j2'
-        dest: '{{ zfs___app._snapshot_file }}'
+        dest: '{{ zfs___app._snapshot }}'
         owner: '{{ zfs__srv._user }}'
         group: '{{ zfs__srv._group }}'
         mode: '0755'
@@ -84,4 +84,4 @@
       loop:
         - '{{ zfs___app._snapshot_unit ~ "service" }}'
         - '{{ zfs___app._snapshot_unit ~ "timer" }}'
-        - '{{ zfs___app._snapshot_file }}'
+        - '{{ zfs___app._snapshot }}'
