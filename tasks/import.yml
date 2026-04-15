@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Modprobe and Import ZFS pools if defined
 ###############################################################################
@@ -18,9 +17,8 @@
 #
 # Reference:
 # * https://wiki.debian.org/SecureBoot#DKMS_and_secure_boot
-# * https://forum.proxmox.com/threads/zfs-unable-to-load-on-fresh-install.36959/
-# * https://r-pufky.github.io/docs/virtualization/hypervisors/pve/index.html#mount-external-zfs-pool
-# yamllint enable rule:line-length
+# * https://forum.proxmox.com/threads/zfs-unable-to-load-on-fresh-install.36959
+# * https://r-pufky.github.io/docs/filesystem/zfs/#mounting-existing-zfs-pool
 
 - name: 'Import | modprobe'
   block:

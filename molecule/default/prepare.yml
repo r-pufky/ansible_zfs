@@ -4,11 +4,11 @@
   gather_facts: true  # ansible_facts['kernel'].
   become: true
   tasks:
-    - name: 'Prepare | ⚠ Modprobe Failure / Reboot Expected ⚠'
+    - name: 'Prepare | 🛆 Modprobe Failure / Reboot Expected 🛆'
       ansible.builtin.debug:
         msg: |
 
-          ⚠ Modprobe Failure / Reboot Expected ⚠
+          🛆 Modprobe Failure / Reboot Expected 🛆
 
           Most VM's will require a reboot to use a Kernel with supported
           Kernel headers. A Modprobe failure followed by a reboot and
