@@ -35,6 +35,7 @@ provisioner:
   inventory:
     group_vars:
       all:
+        apt_srv_auto_grub_boot: true  # Testing VM only.
         zfs_create_user: true
         zfs_flg_snapshot: true
         zfs_cfg_snapshot_remote_user: 'zfs_snapshot'
